@@ -1,0 +1,1367 @@
+{
+	"info": {
+		"_postman_id": "78bc5153-8f3e-45aa-99a2-f45681f63667",
+		"name": "OxideAuth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12850732"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\":\"pierre@codativity.com\",\n    \"password\":\"Password0!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/auth/login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "### Auth Login\n\nThis endpoint is used to authenticate a user and obtain an access token.\n\n#### Request Body\n\n- email (string): The email of the user.\n    \n- password (string): The password of the user.\n    \n\n#### Response\n\nThe response is a JSON object with the following schema:\n\n``` json\n{\n  \"account\": {\n    \"id\": \"\",\n    \"name\": \"\",\n    \"email\": \"\",\n    \"type\": \"\",\n    \"provider\": \"\",\n    \"roles\": [\n      {\n        \"id\": \"\",\n        \"name\": \"\",\n        \"permissions\": [\"\"],\n        \"description\": \"\"\n      }\n    ],\n    \"description\": \"\",\n    \"verified\": true,\n    \"enabled\": true\n  },\n  \"token\": \"\"\n}\n\n ```"
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Pierre Du Toit\",\n    \"email\": \"subaquatic.pierre@gmail.com\",\n    \"password\": \"Password01\",\n    \"redirectHost\": \"http://localhost:8081/\",\n    \"confirmEmailRedirectEndpoint\": \"/auth/sign-in\",\n    \"dashboardEndpoint\": \"/dashboard\",\n    \"projectName\": \"CodaWeb\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/auth/register",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ConfirmAccount",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/auth/confirm-account?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2MGU1ZWE2Ni1iNWMzLTRjN2ItYjVlYy0wMTMyODk2MzQwOTQiLCJleHAiOjk5OTk5OTk5OTk5OTk5OTksImlhdCI6MTcyMTU4MTk5OCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkNvbmZpcm1BY2NvdW50In0.c8AxoBP0iAeqS9d5h9dyKMduBjfDVSU2NX1ydjeyqZQ&redirect_url=http://localhost:8081/auth/sign-in",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"auth",
+								"confirm-account"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2MGU1ZWE2Ni1iNWMzLTRjN2ItYjVlYy0wMTMyODk2MzQwOTQiLCJleHAiOjk5OTk5OTk5OTk5OTk5OTksImlhdCI6MTcyMTU4MTk5OCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkNvbmZpcm1BY2NvdW50In0.c8AxoBP0iAeqS9d5h9dyKMduBjfDVSU2NX1ydjeyqZQ"
+								},
+								{
+									"key": "redirect_url",
+									"value": "http://localhost:8081/auth/sign-in"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RefreshToken",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2NzZkMzU5Ni1iMGY5LTQ4NTItYjgyNC05ZDAzNmM0MTRjYTMiLCJleHAiOjE3MjMwMjMyMjYsImlhdCI6MTcyMjkzNjgyNiwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.xTky9-YArSYS0jEQBFWLEL5OBZ4nX73SxE7C2wRbIvI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/auth/refresh-token",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"auth",
+								"refresh-token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ResendConfirmLink",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"subaquatic.pierre@gmail.com\",\n    \"redirectHost\": \"http://localhost:8081/\",\n    \"confirmEmailRedirectEndpoint\": \"/auth/sign-in\",\n    \"dashboardEndpoint\": \"/admin\",\n    \"projectName\": \"CodaWeb\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/auth/resend-confirm",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"auth",
+								"resend-confirm"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ResetPassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"subaquatic.pierre@gmail.com\",\n    \"redirectUrl\": \"{{host}}/auth/update-password\",\n    \"projectName\": \"CodaWeb\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/auth/reset-password",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"auth",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdatePassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\":\"\",\n    \"password\":\"AMAZING\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/auth/update-password",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"auth",
+								"update-password"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Accounts",
+			"item": [
+				{
+					"name": "ListAccounts",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjNmZiNjZkMS05NmNiLTRkZjgtODkwNS0yM2IxOWVjZjI0ZWEiLCJleHAiOjE3MjQ0OTQxNjksImlhdCI6MTcyNDQwNzc2OSwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.p7k6M-dHx4KgT4ji00vgf0HaC1FvW_Jqkf_zuN0qFWU",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/accounts/list-accounts",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"accounts",
+								"list-accounts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DescribeSelf",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1NDMzMzU2Mi04ODI0LTQ5OWQtOTkyMi03ZGVmZDhhZTM3NDgiLCJleHAiOjE3MjMwOTkzNTgsImlhdCI6MTcyMzAxMjk1OCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.On7XgHhyx9Mx1VcEoR2IAQBRn0GbXMelB1MoKaEPvKw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/accounts/describe-self",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"accounts",
+								"describe-self"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteSelf",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1NDMzMzU2Mi04ODI0LTQ5OWQtOTkyMi03ZGVmZDhhZTM3NDgiLCJleHAiOjE3MjMwOTkzNTgsImlhdCI6MTcyMzAxMjk1OCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.On7XgHhyx9Mx1VcEoR2IAQBRn0GbXMelB1MoKaEPvKw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/accounts/delete-self",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"accounts",
+								"delete-self"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateSelf",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"PETER PAN\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/accounts/update-self",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"accounts",
+								"update-self"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateServiceAccount",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"PETER PAN\",\n    \"email\":\"newviewer@email.com\",\n    \"description\":\"The best service account\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/accounts/create-service-account",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"accounts",
+								"create-service-account"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetServiceAccountSecretKey",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"account\": \"67d17341-5e9c-4d03-b89f-4e27b91099f5\",\n    \"exp\": 999999999\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/accounts/service-account-secret-key",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"accounts",
+								"service-account-secret-key"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateUserAccount",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"User Codaweb\",\n    \"email\":\"user@user.com\",\n    \"password\":\"Password01\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/accounts/create-user-account",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"accounts",
+								"create-user-account"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DescribeAccount",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"account\":\"owner@email.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/accounts/describe-account",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"accounts",
+								"describe-account"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateAccount",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0YzdkOTdjZC00MGI1LTQ0NDUtYWYzYi05ZDhjNTc4MDg2MTUiLCJleHAiOjE3MjMwOTkyNjgsImlhdCI6MTcyMzAxMjg2OCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.4EC5K-NR0cu-_59d4f5iX5nYHfYW2yTVY_sMkdXLJHg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"account\": \"subaquatic.pierre@gmail.com\",\n    \"verified\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/accounts/update-account",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"accounts",
+								"update-account"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteAccount",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"account\":\"cool@email.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/accounts/delete-account",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"accounts",
+								"delete-account"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Services",
+			"item": [
+				{
+					"name": "CreateService",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Blog\",\n    \"endpoint\": \"https://www.newbloog.com\",\n    \"description\":\"The best blog service\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/services/create-service",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"services",
+								"create-service"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LIstServices",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI4ODI0NzUsImlhdCI6MTcyMjg4MjQ0NSwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.U9HYSP1gUhtJeoAPZ3LJE5GRStrQJzR6gNTcPEV6-vQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/services/list-services",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"services",
+								"list-services"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DescribeService",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"service\": \"ccfed92e-ed20-4dcc-9506-60f7586e8d47\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/services/describe-service",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"services",
+								"describe-service"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateService",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"service\":\"46dad5ab-f0c2-45b3-9086-b2751b7d8c42\",\n    \"description\":\"TEST DESCRIPTION\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/services/update-service",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"services",
+								"update-service"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteService",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"service\":\"Auth\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/services/delete-service",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"services",
+								"delete-service"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ValidatePermissions",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiZmE4MTQwYi1kODkzLTQ3MmQtYmNhZi1hMzA2MjZiYjE0NjAiLCJleHAiOjI3MjI5MjY3NjIsImlhdCI6MTcyMjkyNjc2MywiYWNjX3R5cGUiOiJzZXJ2aWNlIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.Z2485YJD4uLtzaSfzUWmE92M1MgVQYXvK5BEeYHZ7Tk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestingToken\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2NzZkMzU5Ni1iMGY5LTQ4NTItYjgyNC05ZDAzNmM0MTRjYTMiLCJleHAiOjE3MjMwMTUzNDIsImlhdCI6MTcyMjkyODk0MiwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.H2dVQez0wvJN5E-mve943eK5_8hniZZzcxruX0ao-kA\",\n    \"requiredPermissions\":\n    [\n        \"codaweb.settings.get\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/services/validate-permissions",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"services",
+								"validate-permissions"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Roles",
+			"item": [
+				{
+					"name": "CreateRole",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"basic\",\n    \"description\":\"The most basic role\",\n    \"permissions\":[\n        \"auth.accounts.list\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/roles/create-role",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"roles",
+								"create-role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateRole",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\": \"2290379f-667e-4c09-9f1e-be0b643ff327\",\n    \"name\": \"PLEASE\",\n    \"description\": \"The UPDATED THE BEST basic role\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/roles/update-role",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"roles",
+								"update-role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListRoles",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/roles/list-roles",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"roles",
+								"list-roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DescribeRole",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\": \"2290379f-667e-4c09-9f1e-be0b643ff327\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/roles/describe-role",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"roles",
+								"describe-role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteRole",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\":\"basic\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/roles/delete-role",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"roles",
+								"delete-role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AssignRoles",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"account\": \"best@email.com\",\n    \"roles\": [\n        \"viewer\",\n        \"admin\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/roles/assign-roles",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"roles",
+								"assign-roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveRoles",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"account\": \"newd@email.com\",\n    \"roles\": [\n        \"viewer\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/roles/remove-roles",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"roles",
+								"remove-roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreatePermissions",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"permissions\": [\n        \"flask.protected.route\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/roles/create-permissions",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"roles",
+								"create-permissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListPermssions",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/roles/list-permissions",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"roles",
+								"list-permissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeletePermissions",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"permissions\": [\n        \"auth.users.list\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/roles/delete-permissions",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"roles",
+								"delete-permissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AssignPermissions",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\": \"0a19a8e1-4b7f-4f45-a31a-1d40953af5c5\",\n    \"permissions\": [\n        \"auth.accounts.create\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/roles/assign-permissions",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"roles",
+								"assign-permissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RemovePermisions",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMzcwMzZjZC1lNmJmLTQxODEtYTE5Yy1lMWI3OGE1YzU0ZGIiLCJleHAiOjE3MjI5NjgwNzAsImlhdCI6MTcyMjg4MTY3MCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.mIcTK2xQ6A5ljxLFwJnEfRkPyDL8cp8RWQlIop1YbEI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\": \"viewer\",\n    \"permissions\": [\n        \"auth.accounts.describeSelf\",\n        \"auth.accounts.updateSelf\",\n        \"auth.services.describe\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/roles/remove-permissions",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"roles",
+								"remove-permissions"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Utils",
+			"item": [
+				{
+					"name": "SendEmail",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0M2IxZjkxYy1lODJkLTQ1MWUtOTJjMy1kZWM0MDljOWFkY2QiLCJleHAiOjE3MjI5NjU5MDksImlhdCI6MTcyMjg3OTUwOSwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.xg_iJDc1T0H6KIKM0v0yz_vDVJt2Nosm29j2hFBLHLs",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"toEmail\":\"subaquatic.pierre@gmail.com\",\n    \"body\": \"Message sent from postman\",\n    \"subject\":\"Cool rust email service\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/utils/send-email",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"utils",
+								"send-email"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetFile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0M2IxZjkxYy1lODJkLTQ1MWUtOTJjMy1kZWM0MDljOWFkY2QiLCJleHAiOjE3MjI5NjU5MDksImlhdCI6MTcyMjg3OTUwOSwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkF1dGgifQ.xg_iJDc1T0H6KIKM0v0yz_vDVJt2Nosm29j2hFBLHLs",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"filename\": \"default/confirm_email.html\",\n    \"storageType\": \"s3\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/utils/get-file",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"utils",
+								"get-file"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,312 @@
+# Roles Collection
+
+The **Roles Collection** manages user roles and permissions within the system, allowing administrators to create, update, delete roles, and assign or remove roles and permissions for users. Below are the detailed descriptions for each endpoint in this collection.
+
+---
+
+## **Create Role**
+
+**Method**: `POST`  
+**URL**: `/roles/create-role`
+
+Creates a new role in the system.
+
+### Request
+
+```json
+{
+  "name": "basic",
+  "description": "The most basic role",
+  "permissions": ["auth.accounts.list"]
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Role created successfully"
+}
+```
+
+## Update Role
+
+**Method**: `POST`  
+**URL**: `/roles/update-role`
+
+Updates an existing role's name and description.
+
+### Request
+
+```json
+{
+  "role": "2290379f-667e-4c09-9f1e-be0b643ff327",
+  "name": "PLEASE",
+  "description": "The UPDATED THE BEST basic role"
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Role updated successfully"
+}
+```
+
+## List Roles
+
+**Method**: `GET`  
+**URL**: `/roles/list-roles`
+
+Retrieves a list of all roles in the system.
+
+### Request
+
+```bash
+GET /roles/list-roles
+```
+
+### Response
+
+```json
+[
+  {
+    "id": "2290379f-667e-4c09-9f1e-be0b643ff327",
+    "name": "basic",
+    "description": "The most basic role",
+    "permissions": ["auth.accounts.list"]
+  },
+  {
+    "id": "3409379e-8b79-5b93-a122-a4e0b654ff512",
+    "name": "admin",
+    "description": "Administrator role",
+    "permissions": ["auth.accounts.create", "auth.accounts.delete"]
+  }
+]
+```
+
+## Describe Role
+
+**Method**: `POST`  
+**URL**: `/roles/describe-role`
+
+Retrieves detailed information about a specific role.
+
+### Request
+
+```json
+{
+  "role": "2290379f-667e-4c09-9f1e-be0b643ff327"
+}
+```
+
+### Response
+
+```json
+{
+  "id": "2290379f-667e-4c09-9f1e-be0b643ff327",
+  "name": "basic",
+  "description": "The most basic role",
+  "permissions": ["auth.accounts.list"]
+}
+```
+
+## Delete Role
+
+**Method**: `POST`  
+**URL**: `/roles/delete-role`
+
+Deletes a role from the system.
+
+### Request
+
+```json
+{
+  "role": "basic"
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Role deleted successfully"
+}
+```
+
+## Assign Roles
+
+**Method**: `POST`  
+**URL**: `/roles/assign-roles`
+
+Assigns one or more roles to a user.
+
+### Request
+
+```json
+{
+  "account": "best@email.com",
+  "roles": ["viewer", "admin"]
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Roles assigned successfully"
+}
+```
+
+## Remove Roles
+
+**Method**: `POST`  
+**URL**: ` /roles/remove-roles`
+
+Removes one or more roles from a user.
+
+### Request
+
+```json
+{
+  "account": "newd@email.com",
+  "roles": ["viewer"]
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Roles removed successfully"
+}
+```
+
+## Create Permissions
+
+**Method**: `POST`  
+**URL**: `/roles/create-permissions`
+
+Creates new permissions in the system.
+
+### Request
+
+```json
+{
+  "permissions": ["flask.protected.route"]
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Permissions created successfully"
+}
+```
+
+## List Permissions
+
+**Method**: `GET`  
+**URL**: `/roles/list-permissions`
+
+Retrieves a list of all permissions available in the system.
+
+### Request
+
+```bash
+GET /roles/list-permissions
+```
+
+### Response
+
+```json
+[
+  {
+    "id": "5cfb1fd0-9c8d-4825-92c3-95a6f2764e18",
+    "name": "auth.accounts.list",
+    "description": "Permission to list accounts"
+  },
+  {
+    "id": "4bcd8a32-5cd4-4da8-8099-dcbf021c1f32",
+    "name": "auth.accounts.delete",
+    "description": "Permission to delete accounts"
+  }
+]
+```
+
+## Delete Permissions
+
+**Method**: `POST`  
+**URL**: `/roles/delete-permissions`
+
+Deletes specific permissions from the system.
+
+### Request
+
+```json
+{
+  "permissions": ["auth.users.list"]
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Permissions deleted successfully"
+}
+```
+
+## Assign Permissions
+
+**Method**: `POST`  
+**URL**: `/roles/assign-permissions`
+
+Assigns one or more permissions to a role.
+
+### Request
+
+```json
+{
+  "role": "0a19a8e1-4b7f-4f45-a31a-1d40953af5c5",
+  "permissions": ["auth.accounts.create"]
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Permissions assigned successfully"
+}
+```
+
+## Remove Permissions
+
+**Method**: `POST`  
+**URL**: `/roles/remove-permissions`
+
+Assigns one or more permissions to a role.
+
+### Request
+
+```json
+{
+  "role": "viewer",
+  "permissions": [
+    "auth.accounts.describeSelf",
+    "auth.accounts.updateSelf",
+    "auth.services.describe"
+  ]
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Permissions removed successfully"
+}
+```

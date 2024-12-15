@@ -1,0 +1,198 @@
+---
+title: "API Overview"
+description: "Learn about OxideAuth endpoints"
+---
+
+import { Cards, Button } from "nextra/components";
+import Image from "next/image";
+
+# OxideAuth Endpoints
+
+Learn about OxideAuth endpoints and how to use them.
+
+For more detailed information on each collection and to see specific endpoint implementations, please visit the corresponding pages linked above.
+
+## Postman Collection
+
+Download the postman collection for testing.
+
+<a
+  className="my-8 inline-block"
+  href="/assets/OxideAuth.postman_collection.json"
+  download="OxideAuth.postman_collection.json"
+>
+  <div className="rounded px-4 py-2 bg-indigo-500 text-white">Download</div>
+</a>
+
+## Request Structure
+
+Each request to the API follows a consistent format:
+
+- **Endpoint**: The endpoint is constructed as `{API_HOSTNAME}/{URL_SLUG}`.
+- **Request Body**: For `POST` and `PUT` requests, the body should be a JSON object in raw format.
+- **Authorization**: If the endpoint requires authentication, include `Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9` in header.
+- **Response**: All responses are returned as JSON objects in the response body.
+
+## cURL Example
+
+Below is an example of a `curl` command for a `POST` request to the login endpoint.
+
+```bash
+curl -X POST {API_HOSTNAME}/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "Password123!"
+  }'
+```
+
+## Authorization: Bearer TOKEN
+
+Most endpoints in the OxideAuth API require a valid JWT (JSON Web Token) for authentication and authorization. This is done through the Authorization header in HTTP requests.
+
+## What is a Bearer Token?
+
+A Bearer Token is a type of token that is used in the Authorization header of HTTP requests to authenticate the client (user or service). The token itself represents the identity of the user and their access permissions.
+
+Once a user successfully logs in or registers, the API generates and returns a JWT. This JWT needs to be included in the Authorization header of subsequent requests that require authentication.
+
+Adding the Authorization Header
+For any request that requires authentication, you must include the Authorization header in the following format:
+
+```
+Authorization: Bearer TOKEN
+```
+
+- Bearer: This indicates the token type.
+- token: This is the actual JWT token that was returned from the login or registration endpoint.
+
+### Example
+
+If the API returns the following token upon login:
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVzZXJAdGVzdC5jb20iLCJleHAiOjE2Mjg3NTk0MjN9.XJZrx7JhaNgUjUQNL7FXsbn5F6_qX9JOblXc_OvBa6w"
+}
+```
+
+You would include this token in the Authorization header for subsequent requests as follows:
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVzZXJAdGVzdC5jb20iLCJleHAiOjE2Mjg3NTk0MjN9.XJZrx7JhaNgUjUQNL7FXsbn5F6_qX9JOblXc_OvBa6w
+```
+
+## Required Endpoints
+
+The Authorization header is required for the following types of operations:
+
+- **Managing Accounts**: Accessing or modifying user accounts (e.g., listing, updating, deleting).
+- **Managing Roles and Permissions**: Creating or updating roles and assigning permissions.
+- **Service Management**: Adding, updating, or deleting services.
+- **Token Refresh**: Refreshing the JWT token.
+
+### Handling Token Expiration
+
+JWT tokens typically have an expiration time (exp), which is included in the token payload. If a token expires, the server will respond with a 401 Unauthorized error. To resolve this, you need to request a new token using the Refresh Token endpoint or by logging in again.
+
+## Endpoint Collections
+
+### Authentication
+
+The **Auth Collection** manages user authentication, including login, registration, password management, and token refresh.
+
+<br />
+
+<Card title="Authentication" href="/endpoints/auth">
+  <Image
+    src="/images/getting-started/header-image.png"
+    height={1080}
+    width={1920}
+    quality={100}
+    alt="Authentication"
+  />
+</Card>
+
+### Roles
+
+The **Roles Collection** manages user roles and permissions within the system, allowing administrators to assign, update, and remove roles or permissions.
+
+<br />
+
+<Card title="Roles" href="/endpoints/roles">
+  <Image
+    src="/images/authLandscape.webp"
+    height={1600}
+    width={1080}
+    quality={100}
+    alt="Roles"
+  />
+</Card>
+
+### Services
+
+The **Services Collection** provides endpoints for managing and interacting with external services.
+
+<br />
+
+<Card title="Services" href="/endpoints/services">
+  <Image
+    src="/images/features/header-image.png"
+    height={1080}
+    width={1920}
+    quality={100}
+    alt="Services"
+  />
+</Card>
+
+### Accounts
+
+The **Accounts Collection** manages user and service accounts, including creating, updating, and deleting accounts.
+
+<br />
+
+<Card title="Accounts" href="/endpoints/accounts">
+  <Image
+    src="/images/cloud/header-image.png"
+    height={1080}
+    width={1920}
+    quality={100}
+    alt="Accounts"
+  />
+</Card>
+
+### Utils
+
+The **Utils Collection** contains various utility endpoints, such as sending emails and retrieving files.
+
+<br />
+
+<Card title="Utils" href="/endpoints/utils">
+  <Image
+    src="/images/product/roadmap/header-image.png"
+    height={1080}
+    width={1920}
+    quality={100}
+    alt="Utils"
+  />
+</Card>
+
+export const Card = Object.assign(
+  // Copy card component and add default props
+  Cards.Card.bind(),
+  {
+    displayName: "Card",
+    defaultProps: {
+      image: true,
+      arrow: true,
+      target: "_self",
+    },
+  }
+);
+
+<style global jsx>{`
+  img {
+    aspect-ratio: 16/9;
+    object-fit: cover;
+  }
+`}</style>

@@ -1,0 +1,177 @@
+# Auth Collection
+
+The **Auth Collection** handles user authentication, including registration, login, password management, and token handling. Below are the detailed descriptions for each endpoint in this collection.
+
+---
+
+## Login
+
+**Method**: `POST`  
+**URL**: `/auth/login`
+
+Logs in a user using their email and password, and returns a JWT token.
+
+### Request
+
+```json
+{
+  "email": "pierre@codativity.com",
+  "password": "Password0!"
+}
+```
+
+### Response
+
+```json
+{
+  "token": "your_jwt_token_here"
+}
+```
+
+## Register
+
+**Method**: `POST`  
+**URL**: `/auth/register`
+
+Registers a new user account.
+
+### Request
+
+```json
+{
+  "name": "Pierre Du Toit",
+  "email": "subaquatic.pierre@gmail.com",
+  "password": "Password01",
+  "redirectHost": "http://localhost:8081/",
+  "confirmEmailRedirectEndpoint": "/auth/sign-in",
+  "dashboardEndpoint": "/dashboard",
+  "projectName": "CodaWeb"
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Registration successful! Please check your email to confirm your account."
+}
+```
+
+## Confirm Account
+
+**Method**: `GET`  
+**URL**: `/auth/confirm-account?token={token}&redirect_url={url}`
+
+Confirms the user’s account using a token sent via email.
+
+### Request
+
+```bash
+GET /auth/confirm-account?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2MGU1ZWE2Ni1iNWMzLTRjN2ItYjVlYy0wMTMyODk2MzQwOTQiLCJleHAiOjk5OTk5OTk5OTk5OTk5OTksImlhdCI6MTcyMTU4MTk5OCwiYWNjX3R5cGUiOiJ1c2VyIiwidG9rZW5fdHlwZSI6IkNvbmZpcm1BY2NvdW50In0.c8AxoBP0iAeqS9d5h9dyKMduBjfDVSU2NX1ydjeyqZQ&redirect_url=http://localhost:8081/auth/sign-in
+```
+
+### Response
+
+```json
+{
+  "message": "Account confirmed successfully"
+}
+```
+
+## Refresh Token
+
+**Method**: `GET`  
+**URL**: `/auth/refresh-token`
+
+Refreshes the user’s JWT token.
+
+### Request
+
+```bash
+Request Headers
+Authorization: Bearer your_current_jwt_token
+```
+
+### Response
+
+```json
+{
+  "token": "new_jwt_token_here"
+}
+```
+
+## Resend Confirmation Link
+
+**Method**: `POST`  
+**URL**: `/auth/resend-confirm`
+
+Resends the confirmation link to the user’s email.
+
+### Request
+
+```json
+{
+  "email": "subaquatic.pierre@gmail.com",
+  "redirectHost": "http://localhost:8081/",
+  "confirmEmailRedirectEndpoint": "/auth/sign-in",
+  "dashboardEndpoint": "/admin",
+  "projectName": "CodaWeb"
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Confirmation email resent successfully."
+}
+```
+
+## Reset Password
+
+**Method**: `POST`  
+**URL**: `/auth/reset-password`
+
+Sends a password reset link to the user’s email.
+
+### Request
+
+```json
+{
+  "email": "subaquatic.pierre@gmail.com",
+  "redirectUrl": "{{host}}/auth/update-password",
+  "projectName": "CodaWeb"
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Password reset link sent successfully."
+}
+```
+
+## Update Password
+
+**Method**: `POST`  
+**URL**: `/auth/update-password`
+
+Resends the confirmation link to the user’s email.
+
+### Request
+
+```json
+{
+  "token": "your_reset_token_here",
+  "password": "NewSecurePassword!"
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Password updated successfully."
+}
+```
