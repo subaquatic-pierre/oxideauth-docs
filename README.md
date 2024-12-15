@@ -1,7 +1,3 @@
----
-title: Centralized Authentication Service (OxideAuth)
----
-
 ## Introduction
 
 OxideAuth provides a robust, centralized authentication service designed to support a microservice architecture. By centralizing authentication and authorization, OxideAuth ensures a consistent security model across all services while simplifying the development and maintenance process.
