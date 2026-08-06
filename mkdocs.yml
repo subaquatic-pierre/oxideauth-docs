@@ -1,0 +1,122 @@
+site_name: OxideAuth Documentation
+site_description: IAM Platform — Identity & Access Management Documentation
+site_author: OxideAuth Team
+repo_url: https://github.com/oxideauth/oxideauth
+repo_name: oxideauth/oxideauth
+edit_uri: edit/main/docs/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - toc.follow
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - API Reference:
+      - Authentication: authentication.md
+      - Response Envelope: response-envelope.md
+      - Health: api/health.md
+      - Workspaces: api/workspace.md
+      - Accounts: api/accounts.md
+      - Projects: api/projects.md
+      - Roles: api/roles.md
+      - Permissions: api/permissions.md
+      - Memberships: api/memberships.md
+      - Credentials: api/credentials.md
+      - Tokens: api/tokens.md
+  - Concepts:
+      - Multi-Tenancy & Workspaces: concepts/workspaces.md
+      - RBAC & Permissions: concepts/permissions.md
+      - Memberships: concepts/membership.md
+  - Architecture:
+      - Overview: architecture/overview.md
+      - Request Flow: architecture/request_flow.md
+      - Entities: architecture/entities.md
+      - Data Flow: architecture/flow.md
+      - Auth Flow: architecture/authflow.md
+      - Auth vs Authorize: architecture/authorize_vs_authenticate.md
+      - Login Flow: architecture/login.md
+      - Roles: architecture/roles.md
+      - Permissions: architecture/permissions.md
+      - Policies: architecture/policies.md
+      - Membership: architecture/membership.md
+      - Namespace: architecture/namespace.md
+      - HTTP Methods: architecture/http_methods.md
+      - Token Architecture: architecture/token.md
+      - Store Module: architecture/store.md
+      - Service Factory: architecture/service_factory.md
+      - SQLx vs Diesel: architecture/sqls_vs_diesel.md
+      - Embedded Worker: architecture/embedded_worker.md
+      - API Philosophy: architecture/api_philosophy.md
+      - Schema Improvements: architecture/schema_improvements.md
+      - Permission Clarity: architecture/authentication.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/oxideauth/oxideauth
+
+copyright: Copyright &copy; 2026 OxideAuth
