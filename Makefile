@@ -1,23 +1,28 @@
-.PHONY: install serve build clean dev
+.PHONY: help install serve build clean dev deploy
 
-# Default target
-.DEFAULT_GOAL := serve
+.DEFAULT_GOAL := help
 
-# Install Python dependencies
-install:
+help: ## Show this help message
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
+		| sort \
+		| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-12s\033[0m %s\n", $$1, $$2}'
+
+install: ## Install Python dependencies
 	pip install -r requirements.txt
 
-# Start live-reload dev server
-serve:
+serve: ## Start live-reload dev server
 	mkdocs serve --dev-addr=0.0.0.0:8000
 
-# Build static site
-build:
+build: ## Build static site
 	mkdocs build
 
-# Clean build output
-clean:
+clean: ## Clean build output
 	rm -rf site/
 
-# Install deps and start dev server
 dev: install serve
+
+deploy: ## Build and deploy the site
+	bash scripts/deploy.sh $(filter-out $@,$(MAKECMDGOALS))
+
+%:
+	@:

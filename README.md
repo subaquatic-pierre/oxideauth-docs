@@ -71,6 +71,41 @@ make build
 
 The built site is git-ignored — it is regenerated in CI/CD or before deployment.
 
+### Deploying to GitHub Pages
+
+The docs site is deployed to GitHub Pages. Two deployment methods are available:
+
+#### Option 1: Git Tag Push (CI Trigger)
+
+```sh
+# From the docs/ directory, create and push a semantic version tag:
+git tag 1.0.0
+git push origin 1.0.0
+```
+
+Pushing a tag matching `*.*.*` triggers the GitHub Actions workflow at `.github/workflows/deploy.yml`, which:
+1. Checks out the repository
+2. Sets up Python and installs dependencies
+3. Builds the MkDocs site (`mkdocs build` → `site/`)
+4. Deploys to GitHub Pages
+
+#### Option 2: Manual Deploy via Script
+
+```sh
+make deploy patch    # bump patch version (0.0.0 → 0.0.1)
+make deploy minor    # bump minor version (0.0.0 → 0.1.0)
+make deploy major    # bump major version (0.0.0 → 1.0.0)
+make deploy 1.2.3    # use explicit version
+```
+
+The `make deploy` command runs `scripts/deploy.sh`, which:
+1. Bumps the version (from git tags)
+2. Builds the MkDocs site (`mkdocs build` → `site/`)
+3. Creates and pushes an `X.Y.Z` tag
+4. Force-pushes build output to the `gh-pages` branch
+
+All tags use semantic versioning (e.g., `1.2.3`). Deployments target the `main` branch.
+
 ### Directory structure
 
 ```
