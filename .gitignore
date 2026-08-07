@@ -1,3 +1,6 @@
 site/
 __pycache__/
 *.pyc
+.opencode/
+.specify/
+specs/
