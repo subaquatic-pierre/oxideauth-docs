@@ -79,6 +79,7 @@ nav:
       - Authentication: authentication.md
       - Response Envelope: response-envelope.md
       - Health: api/health.md
+      - Auth: api/auth.md
       - Workspaces: api/workspace.md
       - Accounts: api/accounts.md
       - Projects: api/projects.md

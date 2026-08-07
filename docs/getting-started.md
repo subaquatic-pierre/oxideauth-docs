@@ -21,7 +21,7 @@ The port defaults to `8000` (configurable via `PORT` environment variable). The 
 
 ## Import the Postman Collection
 
-We provide a ready-to-use Postman collection with all 39 endpoints, example payloads, and auto-populated variables:
+We provide a ready-to-use Postman collection with all 50 endpoints, example payloads, and auto-populated variables:
 
 1. Download the [Postman collection](https://github.com/oxideauth/oxideauth/blob/main/references/OxideAuth.postman_collection.json) from the repository
 2. In Postman, click **Import** → select the downloaded file
@@ -102,7 +102,7 @@ curl -s -X POST http://127.0.0.1:8000/accounts/create \
 
 ### HTTP Method
 
-Almost all endpoints use **POST** with a JSON body — even read operations. Only `GET /` and `GET /health-check` use GET.
+Almost all endpoints use **POST** with a JSON body — even read operations. Only `GET /`, `GET /health-check`, and `GET /auth/oauth/google/callback` use GET.
 
 ### Content-Type
 
@@ -110,13 +110,13 @@ All request bodies must use `Content-Type: application/json`.
 
 ### Authentication
 
-All endpoints except the two health endpoints require a Bearer token:
+All resource management endpoints require a Bearer token. The health endpoints (`GET /`, `GET /health-check`) and the public Auth endpoints (Register, Login, Password Reset, Account Confirmation, OAuth2) do **not** require authentication:
 
 ```
 Authorization: Bearer <JWT_TOKEN>
 ```
 
-See [Authentication](authentication.md) for details on obtaining and managing tokens.
+See [Auth API](api/auth.md) for login/registration endpoints and [Authentication](authentication.md) for details on obtaining and managing tokens.
 
 ### Response Format
 

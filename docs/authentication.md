@@ -2,6 +2,12 @@
 
 OxideAuth uses JWT Bearer tokens for authentication and a permission-based authorization system.
 
+## Auth API Reference
+
+All authentication endpoints (Register, Login, Refresh, Password Reset, Account Confirmation, Token Revocation, and OAuth2) are documented in the [Auth API](api/auth.md) reference.
+
+---
+
 ## Token Format
 
 Tokens are **HS256** (HMAC-SHA256) JWTs signed with the `JWT_SECRET` environment variable.
@@ -130,7 +136,7 @@ Blacklisted token entries include:
 - Expiration time
 - An optional reason
 
-See the [Tokens API](api/tokens.md) for managing blacklisted tokens with list and delete operations.
+See the [Auth API](api/auth.md) for token revocation endpoints (`POST /auth/revoke`, `POST /auth/blacklist`) and the [Tokens API](api/tokens.md) for managing blacklisted tokens with list and delete operations.
 
 ## Workspace Scoping
 

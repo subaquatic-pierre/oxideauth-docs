@@ -33,6 +33,7 @@ graph TD
 | Resource | Endpoints | Description |
 |----------|-----------|-------------|
 | [Health](api/health.md) | 2 | Server liveness & root endpoint |
+| [Auth](api/auth.md) | 11 | Authentication, OAuth2, token & password management |
 | [Workspaces](api/workspace.md) | 5 | Multi-tenant containers |
 | [Accounts](api/accounts.md) | 5 | User identity management |
 | [Projects](api/projects.md) | 5 | Scoped work areas within workspaces |
@@ -42,7 +43,7 @@ graph TD
 | [Credentials](api/credentials.md) | 4 | Auth credential lifecycle |
 | [Tokens](api/tokens.md) | 3 | Blacklisted token management |
 
-**39 total endpoints** — all JSON POST (except 2 GET health endpoints) with a standard `{ success, status, data }` envelope.
+**50 total endpoints** — all JSON POST (except 2 GET health endpoints and 1 GET OAuth callback) with a standard `{ success, status, data }` envelope.
 
 ## Data Model
 
