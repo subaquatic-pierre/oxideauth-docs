@@ -14,8 +14,9 @@ The Validate endpoint is a service-to-service endpoint. Unlike most OxideAuth AP
 1. The client includes its `client_secret` (plaintext) in the request body
 2. OxideAuth hashes the secret with SHA-256 and compares it against the stored hash
 3. If the hash matches, the client is authenticated and the validation proceeds
+4. The client's registered workspace is used as the workspace context for permission checks
 
-This design allows client microservices to validate tokens without managing their own Bearer token lifecycle.
+This design allows client microservices to validate tokens without managing their own Bearer token lifecycle or explicitly specifying a workspace.
 
 ---
 
@@ -27,21 +28,11 @@ Validates a user's access token against a set of required permissions.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | The workspace context for the validation |
-| `client_secret` | string | Yes | The client's plaintext secret (authenticates the client) |
-| `user_token` | string | Yes | The end user's JWT Bearer token to validate |
-| `required_permissions` | string[] | Yes | The set of permissions the user must possess |
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "client_secret": "oxauth_secret_abc123def456",
-  "user_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "required_permissions": ["project:read", "account:describe"]
+  "client_secret": "oxauth_secret_abc123def456",       // string (required) - The client's plaintext secret (authenticates the client and resolves the workspace)
+  "user_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",   // string (required) - The end user's JWT Bearer token to validate
+  "required_permissions": ["project:read", "account:describe"]   // string[] (required) - The set of permissions the user must possess
 }
 ```
 
@@ -84,7 +75,7 @@ Returned only when the request body fails structural validation (e.g., missing r
   "status": 400,
   "error": {
     "code": "VALIDATION_ERROR",
-    "message": "Missing required field: workspace_id"
+    "message": "Missing required field: client_secret"
   }
 }
 ```
@@ -101,7 +92,7 @@ The Validate endpoint performs a multi-step check for each request:
     - **Signature**: Verified using HS256
     - **Expiry**: The `exp` claim is checked — expired tokens return `authorized: false`
     - **Token Type**: Must be `Auth` type (not password reset, not account confirmation)
-4. **Workspace Binding**: The token's workspace claim is verified against the provided `workspace_id`. Mismatched workspaces return `authorized: false`.
+4. **Workspace Binding**: The workspace context is resolved from the authenticated client (each client belongs to a workspace). The token's workspace claim is verified against the client's workspace. Mismatched workspaces return `authorized: false`.
 5. **Permission Check**: The user's effective permissions (derived from their role and membership bindings) are checked against the `required_permissions` array. All required permissions must be satisfied.
 
 If **any** step fails, the response is `authorized: false`. The specific failure reason is intentionally not exposed.

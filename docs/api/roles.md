@@ -14,27 +14,13 @@ Creates a new role with associated permissions. The name must be unique within t
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `name` | string | Yes | Role name (unique per workspace) |
-| `description` | string | No | Optional description |
-| `permission_ids` | UUID[] | Yes | Permissions to attach |
-| `tags` | string[] | Yes | Categorization tags |
-| `meta` | object | Yes | Metadata (`schema_version` required) |
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "name": "Admin",
-  "description": "Full administrative access",
-  "permission_ids": [
-    "660e8400-e29b-41d4-a716-446655440001"
-  ],
-  "tags": ["admin"],
-  "meta": { "schema_version": "1.0" }
+  "name": "Admin",                                             // string (required) - Role name (unique per workspace)
+  "description": "Full administrative access",                 // string (optional) - Optional description
+  "permission_ids": ["660e8400-e29b-41d4-a716-446655440001"],  // UUID[] (required) - Permissions to attach
+  "tags": ["admin"],                                           // string[] (required) - Categorization tags
+  "meta": { "schema_version": "1.0" }                          // object (required) - Metadata (schema_version required)
 }
 ```
 
@@ -42,16 +28,20 @@ Creates a new role with associated permissions. The name must be unique within t
 
 Returns the created `Role` object with nested permissions:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | UUID | Role identifier |
-| `name` | string | Role name |
-| `description` | string? | Description |
-| `permissions` | Permission[] | Attached permission objects |
-| `tags` | string[] | Tags |
-| `meta` | object | Metadata |
-| `created_at` | RFC 3339 | Creation timestamp |
-| `updated_at` | RFC 3339? | Last update timestamp |
+```json
+{
+  "id": "770e8400-e29b-41d4-a716-446655440002",       // UUID - Role identifier
+  "name": "Admin",                                    // string - Role name
+  "description": "Full administrative access",        // string? - Description
+  "permissions": [                                    // Permission[] - Attached permission objects
+    { "id": "660e8400-e29b-41d4-a716-446655440001" }  // object - A single permission object
+  ],
+  "tags": ["admin"],                                  // string[] - Categorization tags
+  "meta": { "schema_version": "1.0" },                // object - Metadata
+  "created_at": "2024-01-15T10:30:00Z",               // RFC 3339 - Creation timestamp
+  "updated_at": null                                  // RFC 3339? - Last update, null if never updated
+}
+```
 
 ---
 
@@ -63,23 +53,30 @@ Retrieves a role by ID.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `id` | UUID | Yes | Role ID |
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "id": "770e8400-e29b-41d4-a716-446655440002"
+  "id": "770e8400-e29b-41d4-a716-446655440002"  // UUID (required) - Role ID
 }
 ```
 
 ### Response
 
-Full `Role` object with nested permissions.
+Full `Role` object with nested permissions:
+
+```json
+{
+  "id": "770e8400-e29b-41d4-a716-446655440002",       // UUID - Role identifier
+  "name": "Admin",                                    // string - Role name
+  "description": "Full administrative access",        // string? - Description
+  "permissions": [                                    // Permission[] - Attached permission objects
+    { "id": "660e8400-e29b-41d4-a716-446655440001" }  // object - A single permission object
+  ],
+  "tags": ["admin"],                                  // string[] - Categorization tags
+  "meta": { "schema_version": "1.0" },                // object - Metadata
+  "created_at": "2024-01-15T10:30:00Z",               // RFC 3339 - Creation timestamp
+  "updated_at": null                                  // RFC 3339? - Last update, null if never updated
+}
+```
 
 ---
 
@@ -91,25 +88,23 @@ Lists roles within a workspace.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `filter` | object | No | Filter parameters |
-| `options` | object | No | Pagination options |
+```json
+{
+  "filter": {                   // object (optional) - Filter parameters
+    "tags": ["admin"],          // string[] (optional) - Only include roles with all listed tags
+    "fields": {}                // object (optional) - Field filters (see Filter Fields below)
+  },
+  "options": {                  // object (optional) - Pagination options
+    "limit": 10,                // integer (optional) - Maximum number of items to return
+    "offset": 0,                // integer (optional) - Number of items to skip
+    "order_bys": "!created_at"  // string (optional) - Sort order; prefix `!` for descending
+  }
+}
+```
 
 ### Filter Fields
 
 `id`, `workspace_id`, `name`, `description`
-
-### Example Request
-
-```json
-{
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "filter": { "tags": ["admin"], "fields": {} },
-  "options": { "limit": 10, "offset": 0, "order_bys": "!created_at" }
-}
-```
 
 ### Response
 
@@ -130,37 +125,42 @@ Lists roles within a workspace.
 
 `POST /roles/update`
 
-Updates role fields. All fields except `id` and `workspace_id` are optional.
+Updates role fields. All fields except `id` are optional.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `id` | UUID | Yes | Role ID |
-| `workspace_id` | UUID | Yes | Workspace context |
-| `name` | string | No | New name |
-| `description` | string | No | New description |
-| `permission_ids` | UUID[] | No | Replace attached permissions |
-| `tags` | string[] | No | Replacement tags |
-| `meta` | object | No | New metadata |
+```json
+{
+  "id": "770e8400-e29b-41d4-a716-446655440002",                // UUID (required) - Role ID
+  "name": "Super Admin",                                       // string (optional) - New name
+  "description": "Elevated administrative access",             // string (optional) - New description
+  "permission_ids": ["660e8400-e29b-41d4-a716-446655440001"],  // UUID[] (optional) - Replaces all attached permissions
+  "tags": ["admin"],                                           // string[] (optional) - Replacement tags
+  "meta": { "schema_version": "1.0" }                          // object (optional) - New metadata
+}
+```
 
 !!! warning "Permission Replacement"
     Providing `permission_ids` will **replace** all existing permissions on the role, not append to them.
 
-### Example Request
+### Response
+
+Updated `Role` object:
 
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "id": "770e8400-e29b-41d4-a716-446655440002",
-  "name": "Super Admin",
-  "description": "Elevated administrative access"
+  "id": "770e8400-e29b-41d4-a716-446655440002",       // UUID - Role identifier
+  "name": "Admin",                                    // string - Role name
+  "description": "Full administrative access",        // string? - Description
+  "permissions": [                                    // Permission[] - Attached permission objects
+    { "id": "660e8400-e29b-41d4-a716-446655440001" }  // object - A single permission object
+  ],
+  "tags": ["admin"],                                  // string[] - Categorization tags
+  "meta": { "schema_version": "1.0" },                // object - Metadata
+  "created_at": "2024-01-15T10:30:00Z",               // RFC 3339 - Creation timestamp
+  "updated_at": null                                  // RFC 3339? - Last update, null if never updated
 }
 ```
-
-### Response
-
-Updated `Role` object.
 
 ---
 
@@ -172,17 +172,9 @@ Deletes a role by ID.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `id` | UUID | Yes | Role ID |
-| `workspace_id` | UUID | Yes | Workspace context |
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "id": "770e8400-e29b-41d4-a716-446655440002"
+  "id": "770e8400-e29b-41d4-a716-446655440002"  // UUID (required) - Role ID
 }
 ```
 

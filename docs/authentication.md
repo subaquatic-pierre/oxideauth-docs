@@ -140,10 +140,54 @@ See the [Auth API](api/auth.md) for token revocation endpoints (`POST /auth/revo
 
 ## Workspace Scoping
 
-Every authenticated request operates within a **workspace context**. The `CtxMiddleware` extracts the workspace ID from the JWT claims, and the service layer's `AuthValidator` enforces that:
+Every authenticated request operates within a **workspace context**. OxideAuth resolves the target workspace using one of two mechanisms:
+
+### 1. Token-Scoped Workspace (Standard)
+
+For standard user tokens, the workspace ID is embedded in the JWT as the `ws` claim. The `CtxMiddleware` extracts the workspace directly from the token, and the service layer enforces that:
 
 1. The requested workspace exists
 2. The caller has `workspace:describe` permission on it
 3. The caller has the specific CRUD permission for the operation
 
-This ensures strict tenant isolation — users in one workspace cannot access resources in another.
+**No additional header is required** — the workspace is determined entirely by the token.
+
+### 2. Global-Scope Tokens with `X-Workspace-Id` Header
+
+Global (root) tokens operate across all workspaces. Because the token itself does not specify a target workspace, the client must explicitly provide one via the `X-Workspace-Id` HTTP header.
+
+| Header | Required For | Description |
+|--------|:------------:|-------------|
+| `X-Workspace-Id` | Global tokens only | UUID of the workspace to operate on |
+
+**Behavior:**
+
+- If the token is **global/root scoped** and the `X-Workspace-Id` header is **present**, the middleware overrides the scoped workspace with the provided UUID.
+- If the token is **global/root scoped** and the `X-Workspace-Id` header is **missing**, the API returns `400 Bad Request`:
+  ```json
+  {
+    "success": false,
+    "status": 400,
+    "message": "X-Workspace-Id header required for global-scope tokens"
+  }
+  ```
+- If the token is **workspace-scoped**, the `X-Workspace-Id` header is **ignored** — the token's embedded workspace always takes precedence.
+
+### Example: Using Global Tokens
+
+```http
+POST /accounts/create HTTP/1.1
+Authorization: Bearer <global_token>
+X-Workspace-Id: 550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/json
+
+{
+  "email": "alice@example.com",
+  "password": "SecureP@ssw0rd!",
+  "name": "Alice Johnson"
+}
+```
+
+### Tenant Isolation
+
+This dual-mode scoping ensures strict tenant isolation — users in one workspace cannot access resources in another. Global tokens are intended for administrative and cross-tenant operations only.

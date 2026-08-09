@@ -14,27 +14,14 @@ Creates a new project within a workspace. The name must be unique within the wor
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Parent workspace |
-| `name` | string | Yes | Project name (unique per workspace) |
-| `code` | string | No | Short code identifier |
-| `description` | string | No | Optional description |
-| `config` | object | Yes | Project configuration (`schema_version` required) |
-| `tags` | string[] | Yes | Categorization tags |
-| `meta` | object | Yes | Metadata (`schema_version` required) |
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "name": "Web Application",
-  "code": "web-app",
-  "description": "Main customer-facing web application",
-  "config": { "schema_version": "1.0" },
-  "tags": ["frontend", "public"],
-  "meta": { "schema_version": "1.0" }
+  "name": "Web Application",                              // string (required) - Project name (unique per workspace)
+  "code": "web-app",                                      // string (optional) - Short code identifier
+  "description": "Main customer-facing web application",  // string (optional) - Optional description
+  "config": { "schema_version": "1.0" },                  // object (required) - Project configuration (schema_version required)
+  "tags": ["frontend", "public"],                         // string[] (required) - Categorization tags
+  "meta": { "schema_version": "1.0" }                     // object (required) - Metadata (schema_version required)
 }
 ```
 
@@ -42,17 +29,19 @@ Creates a new project within a workspace. The name must be unique within the wor
 
 Returns the created `Project` object:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | UUID | Project identifier |
-| `name` | string | Display name |
-| `code` | string? | Short code |
-| `description` | string? | Description |
-| `config` | object | Project config |
-| `tags` | string[] | Tags |
-| `meta` | object | Metadata |
-| `created_at` | RFC 3339 | Creation timestamp |
-| `updated_at` | RFC 3339? | Last update timestamp |
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",           // UUID - Project identifier
+  "name": "Web Application",                              // string - Display name
+  "code": "web-app",                                      // string? - Short code
+  "description": "Main customer-facing web application",  // string? - Description
+  "config": { "schema_version": "1.0" },                  // object - Project config
+  "tags": ["frontend", "public"],                         // string[] - Categorization tags
+  "meta": { "schema_version": "1.0" },                    // object - Metadata
+  "created_at": "2024-01-15T10:30:00Z",                   // RFC 3339 - Creation timestamp
+  "updated_at": null                                      // RFC 3339? - Last update, null if never updated
+}
+```
 
 ---
 
@@ -64,26 +53,32 @@ Retrieves a project by `id` or `code`.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `id` | UUID | No* | Project ID |
-| `code` | string | No* | Project code |
-
-\* Either `id` or `code` must be provided.
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "code": "web-app"
+  "id": "550e8400-e29b-41d4-a716-446655440000",  // UUID (optional*) - Project ID
+  "code": "web-app"                              // string (optional*) - Project code
 }
 ```
 
+\* Either `id` or `code` must be provided.
+
 ### Response
 
-Full `Project` object.
+Full `Project` object:
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",           // UUID - Project identifier
+  "name": "Web Application",                              // string - Display name
+  "code": "web-app",                                      // string? - Short code
+  "description": "Main customer-facing web application",  // string? - Description
+  "config": { "schema_version": "1.0" },                  // object - Project config
+  "tags": ["frontend", "public"],                         // string[] - Categorization tags
+  "meta": { "schema_version": "1.0" },                    // object - Metadata
+  "created_at": "2024-01-15T10:30:00Z",                   // RFC 3339 - Creation timestamp
+  "updated_at": null                                      // RFC 3339? - Last update, null if never updated
+}
+```
 
 ---
 
@@ -95,25 +90,23 @@ Lists projects within a workspace.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `filter` | object | No | Filter (`tags` + `fields`) |
-| `options` | object | No | Pagination (`limit`, `offset`, `order_bys`) |
+```json
+{
+  "filter": {                   // object (optional) - Filter (tags + fields)
+    "tags": [],                 // string[] (optional) - Only include projects with all listed tags
+    "fields": {}                // object (optional) - Field filters (see Filter Fields below)
+  },
+  "options": {                  // object (optional) - Pagination options
+    "limit": 10,                // integer (optional) - Maximum number of items to return
+    "offset": 0,                // integer (optional) - Number of items to skip
+    "order_bys": "!created_at"  // string (optional) - Sort order; prefix `!` for descending
+  }
+}
+```
 
 ### Filter Fields (`filter.fields`)
 
 `id`, `workspace_id`, `name`, `code`, `description`
-
-### Example Request
-
-```json
-{
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "filter": { "tags": [], "fields": {} },
-  "options": { "limit": 10, "offset": 0, "order_bys": "!created_at" }
-}
-```
 
 ### Response
 
@@ -134,38 +127,42 @@ Lists projects within a workspace.
 
 `POST /projects/update`
 
-Updates project fields. All fields except `workspace_id` are optional.
+Updates project fields. All fields are optional.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `id` | UUID | No* | Project ID |
-| `code` | string | No* | Current code (to identify) |
-| `name` | string | No | New name |
-| `new_code` | string | No | Rename code |
-| `description` | string | No | New description |
-| `config` | object | No | New config |
-| `tags` | string[] | No | Replacement tags |
-| `meta` | object | No | New metadata |
-
-\* Either `id` or `code` must be provided.
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "code": "web-app",
-  "name": "Web Application v2",
-  "description": "Updated description"
+  "id": "550e8400-e29b-41d4-a716-446655440000",  // UUID (optional*) - Project ID
+  "code": "web-app",                             // string (optional*) - Current code (to identify project)
+  "name": "Web Application v2",                  // string (optional) - New name
+  "new_code": "web-app-v2",                      // string (optional) - Rename code
+  "description": "Updated description",          // string (optional) - New description
+  "config": { "schema_version": "1.0" },         // object (optional) - New config
+  "tags": ["frontend", "public"],                // string[] (optional) - Replacement tags
+  "meta": { "schema_version": "1.0" }            // object (optional) - New metadata
 }
 ```
 
+\* Either `id` or `code` must be provided.
+
 ### Response
 
-Updated `Project` object.
+Updated `Project` object:
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",           // UUID - Project identifier
+  "name": "Web Application",                              // string - Display name
+  "code": "web-app",                                      // string? - Short code
+  "description": "Main customer-facing web application",  // string? - Description
+  "config": { "schema_version": "1.0" },                  // object - Project config
+  "tags": ["frontend", "public"],                         // string[] - Categorization tags
+  "meta": { "schema_version": "1.0" },                    // object - Metadata
+  "created_at": "2024-01-15T10:30:00Z",                   // RFC 3339 - Creation timestamp
+  "updated_at": null                                      // RFC 3339? - Last update, null if never updated
+}
+```
 
 ---
 
@@ -177,20 +174,14 @@ Deletes a project by `id` or `code`.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `id` | UUID | No* | Project ID |
-| `code` | string | No* | Project code |
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "code": "web-app"
+  "id": "550e8400-e29b-41d4-a716-446655440000",  // UUID (optional*) - Project ID
+  "code": "web-app"                              // string (optional*) - Project code
 }
 ```
+
+\* Either `id` or `code` must be provided.
 
 ### Response
 

@@ -14,29 +14,15 @@ Creates a new user account within a workspace. The email must be globally unique
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `email` | string | Yes | Unique email address |
-| `password` | string | Yes | Account password (hashed with Argon2 server-side) |
-| `workspace_id` | UUID | Yes | The workspace to associate with |
-| `name` | string | Yes | Display name |
-| `description` | string | No | Optional description |
-| `avatar_url` | string | No | Avatar image URL |
-| `tags` | string[] | No | Categorization tags |
-| `meta` | object | No | Metadata (`schema_version` required if provided) |
-
-### Example Request
-
 ```json
 {
-  "email": "alice@example.com",
-  "password": "SecureP@ssw0rd!",
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "name": "Alice Johnson",
-  "description": "Engineering team lead",
-  "avatar_url": "https://example.com/avatars/alice.png",
-  "tags": ["engineering", "staff"],
-  "meta": { "schema_version": "1.0" }
+  "email": "alice@example.com",                           // string (required) - Unique email address
+  "password": "SecureP@ssw0rd!",                          // string (required) - Account password (hashed with Argon2 server-side)
+  "name": "Alice Johnson",                                // string (required) - Display name
+  "description": "Engineering team lead",                 // string (optional) - Optional description
+  "avatar_url": "https://example.com/avatars/alice.png",  // string (optional) - Avatar image URL
+  "tags": ["engineering", "staff"],                       // string[] (optional) - Categorization tags
+  "meta": { "schema_version": "1.0" }                     // object (optional) - Metadata (schema_version required if provided)
 }
 ```
 
@@ -44,19 +30,21 @@ Creates a new user account within a workspace. The email must be globally unique
 
 Returns the created `Account` object:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | UUID | Account identifier |
-| `email` | string | Email address |
-| `name` | string | Display name |
-| `description` | string? | Optional description |
-| `avatar_url` | string? | Avatar URL |
-| `enabled` | boolean | Whether the account is active |
-| `verified` | boolean | Whether the email is verified |
-| `tags` | string[] | Tags |
-| `meta` | object | Metadata |
-| `created_at` | RFC 3339 | Creation timestamp |
-| `updated_at` | RFC 3339? | Last update timestamp |
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",           // UUID - Account identifier
+  "email": "alice@example.com",                           // string - Email address
+  "name": "Alice Johnson",                                // string - Display name
+  "description": "Engineering team lead",                 // string? - Optional description
+  "avatar_url": "https://example.com/avatars/alice.png",  // string? - Avatar URL
+  "enabled": true,                                        // boolean - Whether the account is active
+  "verified": true,                                       // boolean - Whether the email is verified
+  "tags": ["engineering", "staff"],                       // string[] - Categorization tags
+  "meta": { "schema_version": "1.0" },                    // object - Metadata
+  "created_at": "2024-01-15T10:30:00Z",                   // RFC 3339 - Creation timestamp
+  "updated_at": null                                      // RFC 3339? - Last update, null if never updated
+}
+```
 
 ---
 
@@ -68,26 +56,34 @@ Retrieves an account by `id` or `email`.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `id` | UUID | No* | Account ID |
-| `email` | string | No* | Account email |
-
-\* Either `id` or `email` must be provided.
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "email": "alice@example.com"
+  "id": "550e8400-e29b-41d4-a716-446655440000",  // UUID (optional*) - Account ID
+  "email": "alice@example.com"                   // string (optional*) - Account email
 }
 ```
 
+\* Either `id` or `email` must be provided.
+
 ### Response
 
-Full `Account` object.
+Full `Account` object:
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",           // UUID - Account identifier
+  "email": "alice@example.com",                           // string - Email address
+  "name": "Alice Johnson",                                // string - Display name
+  "description": "Engineering team lead",                 // string? - Optional description
+  "avatar_url": "https://example.com/avatars/alice.png",  // string? - Avatar URL
+  "enabled": true,                                        // boolean - Whether the account is active
+  "verified": true,                                       // boolean - Whether the email is verified
+  "tags": ["engineering", "staff"],                       // string[] - Categorization tags
+  "meta": { "schema_version": "1.0" },                    // object - Metadata
+  "created_at": "2024-01-15T10:30:00Z",                   // RFC 3339 - Creation timestamp
+  "updated_at": null                                      // RFC 3339? - Last update, null if never updated
+}
+```
 
 ---
 
@@ -99,11 +95,19 @@ Lists accounts in a workspace with optional filtering and pagination.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `filter` | object | No | Filter parameters |
-| `options` | object | No | Pagination options |
+```json
+{
+  "filter": {                   // object (optional) - Filter parameters
+    "tags": ["engineering"],    // string[] (optional) - Only include accounts with all listed tags
+    "fields": {}                // object (optional) - Field filters (see Filter Fields below)
+  },
+  "options": {                  // object (optional) - Pagination options
+    "limit": 10,                // integer (optional) - Maximum number of items to return
+    "offset": 0,                // integer (optional) - Number of items to skip
+    "order_bys": "!created_at"  // string (optional) - Sort order; prefix `!` for descending
+  }
+}
+```
 
 ### Filter Fields (`filter.fields`)
 
@@ -120,23 +124,6 @@ Lists accounts in a workspace with optional filtering and pagination.
 | `created_at` | datetime | Creation time |
 | `updated_by` | UUID | Last updater account ID |
 | `updated_at` | datetime | Last update time |
-
-### Example Request
-
-```json
-{
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "filter": {
-    "tags": ["engineering"],
-    "fields": {}
-  },
-  "options": {
-    "limit": 10,
-    "offset": 0,
-    "order_bys": "!created_at"
-  }
-}
-```
 
 ### Response
 
@@ -163,40 +150,45 @@ Lists accounts in a workspace with optional filtering and pagination.
 
 `POST /accounts/update`
 
-Updates account fields. All fields except `workspace_id` are optional.
+Updates account fields. All fields are optional.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `id` | UUID | No* | Account ID |
-| `email` | string | No* | Current email (to identify account) |
-| `name` | string | No | New display name |
-| `description` | string | No | New description |
-| `avatar_url` | string | No | New avatar URL |
-| `enabled` | boolean | No | Enable/disable account |
-| `verified` | boolean | No | Verify/unverify account |
-| `tags` | string[] | No | Replacement tags |
-| `meta` | object | No | New metadata |
-
-\* Either `id` or `email` must be provided to identify the account.
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "email": "alice@example.com",
-  "name": "Alice Johnson-Smith",
-  "description": "Senior Engineering Lead",
-  "tags": ["engineering", "staff", "leadership"]
+  "id": "550e8400-e29b-41d4-a716-446655440000",           // UUID (optional*) - Account ID
+  "email": "alice@example.com",                           // string (optional*) - Current email (to identify account)
+  "name": "Alice Johnson-Smith",                          // string (optional) - New display name
+  "description": "Senior Engineering Lead",               // string (optional) - New description
+  "avatar_url": "https://example.com/avatars/alice.png",  // string (optional) - New avatar URL
+  "enabled": true,                                        // boolean (optional) - Enable/disable account
+  "verified": true,                                       // boolean (optional) - Verify/unverify account
+  "tags": ["engineering", "staff", "leadership"],         // string[] (optional) - Replacement tags
+  "meta": { "schema_version": "1.0" }                     // object (optional) - New metadata
 }
 ```
 
+\* Either `id` or `email` must be provided to identify the account.
+
 ### Response
 
-Updated `Account` object.
+Updated `Account` object:
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",           // UUID - Account identifier
+  "email": "alice@example.com",                           // string - Email address
+  "name": "Alice Johnson",                                // string - Display name
+  "description": "Engineering team lead",                 // string? - Optional description
+  "avatar_url": "https://example.com/avatars/alice.png",  // string? - Avatar URL
+  "enabled": true,                                        // boolean - Whether the account is active
+  "verified": true,                                       // boolean - Whether the email is verified
+  "tags": ["engineering", "staff"],                       // string[] - Categorization tags
+  "meta": { "schema_version": "1.0" },                    // object - Metadata
+  "created_at": "2024-01-15T10:30:00Z",                   // RFC 3339 - Creation timestamp
+  "updated_at": null                                      // RFC 3339? - Last update, null if never updated
+}
+```
 
 ---
 
@@ -208,22 +200,14 @@ Deletes an account by `id` or `email`.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `id` | UUID | No* | Account ID |
-| `email` | string | No* | Account email |
-
-\* Either `id` or `email` must be provided.
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "email": "alice@example.com"
+  "id": "550e8400-e29b-41d4-a716-446655440000",  // UUID (optional*) - Account ID
+  "email": "alice@example.com"                   // string (optional*) - Account email
 }
 ```
+
+\* Either `id` or `email` must be provided.
 
 ### Response
 

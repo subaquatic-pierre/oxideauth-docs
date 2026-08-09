@@ -46,21 +46,12 @@ Retrieves a credential by ID.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `id` | UUID | Yes | Credential ID |
-| `account_id` | UUID | Yes | Owning account |
-| `workspace_id` | UUID | Yes | Workspace context |
-| `provider_id` | string | No | External provider ID |
-| `email` | string | No | Associated email |
-
-### Example Request
-
 ```json
 {
-  "id": "bb0e8400-e29b-41d4-a716-446655440006",
-  "account_id": "880e8400-e29b-41d4-a716-446655440003",
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000"
+  "id": "bb0e8400-e29b-41d4-a716-446655440006",            // UUID (required) - Credential ID
+  "account_id": "880e8400-e29b-41d4-a716-446655440003",    // UUID (required) - Owning account
+  "provider_id": "google-12345",                             // string (optional) - External provider ID
+  "email": "user@example.com"                                // string (optional) - Associated email
 }
 ```
 
@@ -68,21 +59,25 @@ Retrieves a credential by ID.
 
 Returns the `Credential` object:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | UUID | Credential identifier |
-| `account_id` | UUID | Owning account |
-| `workspace_id` | UUID | Workspace |
-| `kind` | string | `"password"`, `"oauth"`, `"sso"`, or `"api_key"` |
-| `provider` | string | `"local"`, `"google"`, or `"github"` |
-| `status` | string | `"active"`, `"revoked"`, or `"pending"` |
-| `provider_id` | string? | External provider identifier |
-| `email` | string? | Associated email |
-| `last_used_at` | RFC 3339? | Last authentication timestamp |
-| `tags` | string[] | Tags |
-| `meta` | object | Metadata |
-| `created_at` | RFC 3339 | Creation timestamp |
-| `updated_at` | RFC 3339? | Last update timestamp |
+```json
+{
+  "id": "bb0e8400-e29b-41d4-a716-446655440006",            // UUID - Credential identifier
+  "account_id": "880e8400-e29b-41d4-a716-446655440003",    // UUID - Owning account
+  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",  // UUID - Workspace
+  "kind": "password",                                        // string - "password", "oauth", "sso", or "api_key"
+  "provider": "local",                                       // string - "local", "google", or "github"
+  "status": "active",                                        // string - "active", "revoked", or "pending"
+  "provider_id": "google-12345",                             // string? - External provider identifier
+  "email": "user@example.com",                               // string? - Associated email
+  "last_used_at": "2024-01-15T10:30:00Z",                    // RFC 3339? - Last authentication timestamp
+  "tags": ["password"],                                      // string[] - Tags
+  "meta": {                                                  // object - Metadata
+    "schema_version": "1.0"                                    // string - Schema version
+  },
+  "created_at": "2024-01-15T10:30:00Z",                      // RFC 3339 - Creation timestamp
+  "updated_at": "2024-01-15T10:30:00Z"                       // RFC 3339? - Last update timestamp
+}
+```
 
 ---
 
@@ -94,28 +89,23 @@ Lists credentials within a workspace.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `filter` | object | No | Filter parameters |
-| `options` | object | No | Pagination options |
+```json
+{
+  "filter": {                                    // object (optional) - Filter parameters
+    "tags": [],                                    // string[] (optional) - Tags to filter by
+    "fields": { "status": "active" }               // object (optional) - Field filters
+  },
+  "options": {                                   // object (optional) - Pagination options
+    "limit": 10,                                   // integer (optional) - Page size
+    "offset": 0,                                   // integer (optional) - Page offset
+    "order_bys": "!created_at"                     // string (optional) - Sort order
+  }
+}
+```
 
 ### Filter Fields
 
 `id`, `account_id`, `workspace_id`, `kind`, `provider`, `status`, `provider_id`, `email`
-
-### Example Request
-
-```json
-{
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "filter": {
-    "tags": [],
-    "fields": { "status": "active" }
-  },
-  "options": { "limit": 10, "offset": 0, "order_bys": "!created_at" }
-}
-```
 
 ### Response
 
@@ -136,36 +126,27 @@ Lists credentials within a workspace.
 
 `POST /credentials/update`
 
-Updates a credential's fields. All fields except `id`, `account_id`, and `workspace_id` are optional.
+Updates a credential's fields. All fields except `id` and `account_id` are optional.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `id` | UUID | Yes | Credential ID |
-| `account_id` | UUID | Yes | Owning account |
-| `workspace_id` | UUID | Yes | Workspace context |
-| `kind` | string | No | New credential kind |
-| `provider` | string | No | New provider |
-| `status` | string | No | `"active"`, `"revoked"`, or `"pending"` |
-| `provider_id` | string | No | External provider ID |
-| `email` | string | No | Associated email |
-| `new_provider_id` | string | No | Replace external provider ID |
-| `new_email` | string | No | Replace associated email |
-| `secret` | string | No | New password/secret |
-| `last_used_at` | RFC 3339 | No | Last usage timestamp |
-| `tags` | string[] | No | Replacement tags |
-| `meta` | object | No | New metadata |
-
-### Example Request
-
 ```json
 {
-  "id": "bb0e8400-e29b-41d4-a716-446655440006",
-  "account_id": "880e8400-e29b-41d4-a716-446655440003",
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "revoked",
-  "tags": ["revoked"]
+  "id": "bb0e8400-e29b-41d4-a716-446655440006",             // UUID (required) - Credential ID
+  "account_id": "880e8400-e29b-41d4-a716-446655440003",     // UUID (required) - Owning account
+  "kind": "password",                                        // string (optional) - "password", "oauth", "sso", or "api_key"
+  "provider": "local",                                       // string (optional) - "local", "google", or "github"
+  "status": "active",                                        // string (optional) - "active", "revoked", or "pending"
+  "provider_id": "google-12345",                             // string (optional) - External provider ID
+  "email": "user@example.com",                               // string (optional) - Associated email
+  "new_provider_id": "google-67890",                         // string (optional) - Replace external provider ID
+  "new_email": "new@example.com",                            // string (optional) - Replace associated email
+  "secret": "s3cret",                                        // string (optional) - New password/secret
+  "last_used_at": "2024-01-15T10:30:00Z",                    // RFC 3339 (optional) - Last usage timestamp
+  "tags": ["password"],                                      // string[] (optional) - Replacement tags
+  "meta": {                                                  // object (optional) - New metadata
+    "schema_version": "1.0"                                    // string (optional) - Schema version
+  }
 }
 ```
 
@@ -183,21 +164,12 @@ Deletes a credential by ID.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `id` | UUID | Yes | Credential ID |
-| `account_id` | UUID | Yes | Owning account |
-| `workspace_id` | UUID | Yes | Workspace context |
-| `provider_id` | string | No | External provider ID |
-| `email` | string | No | Associated email |
-
-### Example Request
-
 ```json
 {
-  "id": "bb0e8400-e29b-41d4-a716-446655440006",
-  "account_id": "880e8400-e29b-41d4-a716-446655440003",
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000"
+  "id": "bb0e8400-e29b-41d4-a716-446655440006",            // UUID (required) - Credential ID
+  "account_id": "880e8400-e29b-41d4-a716-446655440003",    // UUID (required) - Owning account
+  "provider_id": "google-12345",                             // string (optional) - External provider ID
+  "email": "user@example.com"                                // string (optional) - Associated email
 }
 ```
 

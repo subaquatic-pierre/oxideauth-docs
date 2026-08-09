@@ -29,25 +29,15 @@ Creates a new permission in a workspace. The name must be unique within the work
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `name` | string | Yes | Permission name (e.g., `"account:readAny"`) |
-| `code` | string | No | Machine-readable code |
-| `description` | string | No | Human-readable description |
-| `tags` | string[] | Yes | Categorization tags |
-| `meta` | object | Yes | Metadata (`schema_version` required) |
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "name": "account:readAny",
-  "code": "account.read_any",
-  "description": "Allows reading any account in the workspace",
-  "tags": ["account", "read"],
-  "meta": { "schema_version": "1.0" }
+  "name": "account:readAny",                   // string (required) - Permission name (e.g., "account:readAny")
+  "code": "account.read_any",                  // string (optional) - Machine-readable code
+  "description": "Allows reading any account in the workspace",  // string (optional) - Human-readable description
+  "tags": ["account", "read"],                 // string[] (required) - Categorization tags
+  "meta": {                                    // object (required) - Metadata (schema_version required)
+    "schema_version": "1.0"                      // string (required) - Metadata schema version
+  }
 }
 ```
 
@@ -55,16 +45,20 @@ Creates a new permission in a workspace. The name must be unique within the work
 
 Returns the created `Permission` object:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | UUID | Permission identifier |
-| `name` | string | Permission name |
-| `code` | string? | Machine-readable code |
-| `description` | string? | Description |
-| `tags` | string[] | Tags |
-| `meta` | object | Metadata |
-| `created_at` | RFC 3339 | Creation timestamp |
-| `updated_at` | RFC 3339? | Last update timestamp |
+```json
+{
+  "id": "660e8400-e29b-41d4-a716-446655440001",      // UUID - Permission identifier
+  "name": "account:readAny",                           // string - Permission name
+  "code": "account.read_any",                          // string? - Machine-readable code
+  "description": "Allows reading any account in the workspace",  // string? - Description
+  "tags": ["account", "read"],                         // string[] - Tags
+  "meta": {                                            // object - Metadata
+    "schema_version": "1.0"                              // string - Schema version
+  },
+  "created_at": "2024-01-15T10:30:00Z",                // RFC 3339 - Creation timestamp
+  "updated_at": "2024-01-15T10:30:00Z"                 // RFC 3339? - Last update timestamp
+}
+```
 
 ---
 
@@ -76,22 +70,14 @@ Retrieves a permission by `id` or `code`.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `id` | UUID | No* | Permission ID |
-| `code` | string | No* | Permission code |
-
-\* Either `id` or `code` must be provided.
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "code": "account.read_any"
+  "id": "660e8400-e29b-41d4-a716-446655440001",   // UUID (optional*) - Permission ID
+  "code": "account.read_any"                        // string (optional*) - Permission code
 }
 ```
+
+\* Either `id` or `code` must be provided.
 
 ### Response
 
@@ -107,25 +93,23 @@ Lists permissions within a workspace.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `workspace_id` | UUID | Yes | Workspace context |
-| `filter` | object | No | Filter parameters |
-| `options` | object | No | Pagination options |
+```json
+{
+  "filter": {                              // object (optional) - Filter parameters
+    "tags": ["account"],                     // string[] (optional) - Tags to filter by
+    "fields": {}                             // object (optional) - Field filters
+  },
+  "options": {                             // object (optional) - Pagination options
+    "limit": 20,                             // integer (optional) - Page size
+    "offset": 0,                             // integer (optional) - Page offset
+    "order_bys": "name"                      // string (optional) - Sort order
+  }
+}
+```
 
 ### Filter Fields
 
 `id`, `workspace_id`, `name`, `code`, `description`
-
-### Example Request
-
-```json
-{
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "filter": { "tags": ["account"], "fields": {} },
-  "options": { "limit": 20, "offset": 0, "order_bys": "name" }
-}
-```
 
 ### Response
 
@@ -150,23 +134,16 @@ Updates permission metadata.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `id` | UUID | Yes | Permission ID |
-| `workspace_id` | UUID | Yes | Workspace context |
-| `name` | string | No | New name |
-| `code` | string | No | New code |
-| `description` | string | No | New description |
-| `tags` | string[] | No | Replacement tags |
-| `meta` | object | No | New metadata |
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "id": "660e8400-e29b-41d4-a716-446655440001",
-  "description": "Allows reading any account (updated)"
+  "id": "660e8400-e29b-41d4-a716-446655440001",   // UUID (required) - Permission ID
+  "name": "account:readAny",                       // string (optional) - New name
+  "code": "account.read_any",                      // string (optional) - New code
+  "description": "Allows reading any account (updated)",  // string (optional) - New description
+  "tags": ["account", "read"],                     // string[] (optional) - Replacement tags
+  "meta": {                                        // object (optional) - New metadata
+    "schema_version": "1.0"                          // string (optional) - Schema version
+  }
 }
 ```
 
@@ -184,17 +161,9 @@ Deletes a permission by ID.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `id` | UUID | Yes | Permission ID |
-| `workspace_id` | UUID | Yes | Workspace context |
-
-### Example Request
-
 ```json
 {
-  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
-  "id": "660e8400-e29b-41d4-a716-446655440001"
+  "id": "660e8400-e29b-41d4-a716-446655440001"    // UUID (required) - Permission ID
 }
 ```
 

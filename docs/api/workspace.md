@@ -14,25 +14,18 @@ Creates a new workspace. The slug must be globally unique.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `name` | string | Yes | Display name |
-| `slug` | string | Yes | URL-friendly unique identifier |
-| `description` | string | No | Optional description |
-| `config` | object | Yes | Workspace configuration (`schema_version` required) |
-| `tags` | string[] | Yes | Categorization tags |
-| `meta` | object | Yes | Extensible metadata (`schema_version` required) |
-
-### Example Request
-
 ```json
 {
-  "name": "My Organization",
-  "slug": "my-org",
-  "description": "Primary workspace for My Organization",
-  "config": { "schema_version": "1.0" },
-  "tags": ["production", "primary"],
-  "meta": { "schema_version": "1.0" }
+  "name": "My Organization",                             // string (required) - Display name
+  "slug": "my-org",                                      // string (required) - URL-friendly unique identifier
+  "description": "Primary workspace for My Organization", // string (optional) - Optional description
+  "config": {                                            // object (required) - Workspace configuration
+    "schema_version": "1.0"                              // string (required) - Config schema version
+  },
+  "tags": ["production", "primary"],                     // string[] (required) - Categorization tags
+  "meta": {                                              // object (required) - Extensible metadata
+    "schema_version": "1.0"                              // string (required) - Metadata schema version
+  }
 }
 ```
 
@@ -40,17 +33,19 @@ Creates a new workspace. The slug must be globally unique.
 
 Returns the created `Workspace` object:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | UUID | Workspace identifier |
-| `name` | string | Display name |
-| `slug` | string | Unique slug |
-| `description` | string? | Optional description |
-| `config` | object | Workspace config |
-| `tags` | string[] | Tags |
-| `meta` | object | Metadata |
-| `created_at` | RFC 3339 | Creation timestamp |
-| `updated_at` | RFC 3339? | Last update timestamp |
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",     // UUID - Workspace identifier
+  "name": "My Organization",                         // string - Display name
+  "slug": "my-org",                                  // string - Unique slug
+  "description": "Primary workspace",                // string? - Optional description
+  "config": { "schema_version": "1.0" },             // object - Workspace config
+  "tags": ["production", "primary"],                 // string[] - Tags
+  "meta": { "schema_version": "1.0" },               // object - Metadata
+  "created_at": "2024-01-15T10:30:00Z",              // RFC 3339 - Creation timestamp
+  "updated_at": "2024-01-15T10:30:00Z"               // RFC 3339? - Last update timestamp
+}
+```
 
 ---
 
@@ -62,28 +57,14 @@ Retrieves a workspace by `id` or `slug`.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `id` | UUID | No* | Workspace ID |
-| `slug` | string | No* | Workspace slug |
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",     // UUID (optional*) - Workspace ID
+  "slug": "my-org"                                   // string (optional*) - Workspace slug
+}
+```
 
 \* Either `id` or `slug` must be provided.
-
-### Example Request
-
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000"
-}
-```
-
-or
-
-```json
-{
-  "slug": "my-org"
-}
-```
 
 ### Response
 
@@ -99,40 +80,16 @@ Lists all workspaces with optional filtering and pagination.
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `filter` | object | No | Filter parameters |
-| `options` | object | No | Pagination options |
-
-### Filter Fields (`filter.fields`)
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | UUID | Filter by workspace ID |
-| `name` | string | Filter by name |
-| `slug` | string | Filter by slug |
-| `description` | string | Filter by description |
-
-### Options
-
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `limit` | integer | — | Page size |
-| `offset` | integer | — | Records to skip |
-| `order_bys` | string | — | Sort order (`"created_at"` for ASC, `"!created_at"` for DESC) |
-
-### Example Request
-
 ```json
 {
-  "filter": {
-    "tags": [],
-    "fields": {}
+  "filter": {                                        // object (optional) - Filter parameters
+    "tags": [],                                      // string[] (optional) - Filter by tags
+    "fields": {}                                     // object (optional) - Filter by field values (`id`, `name`, `slug`, `description`)
   },
-  "options": {
-    "limit": 10,
-    "offset": 0,
-    "order_bys": "!created_at"
+  "options": {                                       // object (optional) - Pagination options
+    "limit": 10,                                     // integer (optional) - Page size
+    "offset": 0,                                     // integer (optional) - Records to skip
+    "order_bys": "!created_at"                       // string (optional) - Sort order (`"created_at"` for ASC, `"!created_at"` for DESC)
   }
 }
 ```
@@ -169,27 +126,19 @@ Updates workspace fields. All fields except the identifier are optional — only
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `id` | UUID | No* | Workspace ID to update |
-| `slug` | string | No* | Slug of workspace to update |
-| `name` | string | No | New display name |
-| `description` | string | No | New description |
-| `config` | object | No | New config |
-| `tags` | string[] | No | Replacement tags |
-| `meta` | object | No | New metadata |
-
-\* Either `id` or `slug` must be provided to identify the workspace.
-
-### Example Request
-
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "name": "My Organization (Updated)",
-  "description": "Updated description"
+  "id": "550e8400-e29b-41d4-a716-446655440000",     // UUID (optional*) - Workspace ID to update
+  "slug": "my-org",                                  // string (optional*) - Slug of workspace to update
+  "name": "My Organization (Updated)",               // string (optional) - New display name
+  "description": "Updated description",              // string (optional) - New description
+  "config": { "schema_version": "1.0" },             // object (optional) - New config
+  "tags": ["production", "primary"],                 // string[] (optional) - Replacement tags
+  "meta": { "schema_version": "1.0" }                // object (optional) - New metadata
 }
 ```
+
+\* Either `id` or `slug` must be provided to identify the workspace.
 
 ### Response
 
@@ -205,20 +154,14 @@ Deletes a workspace. **This is a destructive operation.**
 
 ### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `id` | UUID | No* | Workspace ID |
-| `slug` | string | No* | Workspace slug |
-
-\* Either `id` or `slug` must be provided.
-
-### Example Request
-
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000"
+  "id": "550e8400-e29b-41d4-a716-446655440000",     // UUID (optional*) - Workspace ID
+  "slug": "my-org"                                   // string (optional*) - Workspace slug
 }
 ```
+
+\* Either `id` or `slug` must be provided.
 
 ### Response
 
