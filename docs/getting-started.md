@@ -17,7 +17,7 @@ All API requests are made to the server's base URL:
 http://127.0.0.1:8000
 ```
 
-The port defaults to `8000` (configurable via `PORT` environment variable). The Docker image exposes port `8081`.
+The port defaults to `8000` (configurable via `PORT` environment variable). The Docker image exposes port `8000`.
 
 ## Import the Postman Collection
 

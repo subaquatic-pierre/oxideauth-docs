@@ -41,7 +41,6 @@ graph TD
 | [Permissions](api/permissions.md) | 5 | Fine-grained access control |
 | [Memberships](api/memberships.md) | 5 | Account-to-workspace/project links |
 | [Credentials](api/credentials.md) | 4 | Auth credential lifecycle |
-| [Tokens](api/tokens.md) | 3 | Blacklisted token management |
 
 **50 total endpoints** — all JSON POST (except 2 GET health endpoints and 1 GET OAuth callback) with a standard `{ success, status, data }` envelope.
 

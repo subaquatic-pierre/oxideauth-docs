@@ -136,7 +136,7 @@ Blacklisted token entries include:
 - Expiration time
 - An optional reason
 
-See the [Auth API](api/auth.md) for token revocation endpoints (`POST /auth/revoke`, `POST /auth/blacklist`) and the [Tokens API](api/tokens.md) for managing blacklisted tokens with list and delete operations.
+See the [Auth API](api/auth.md) for token revocation endpoints (`POST /auth/revoke`, `POST /auth/blacklist`).
 
 ## Workspace Scoping
 

@@ -11,7 +11,7 @@ install: ## Install Python dependencies
 	pip install -r requirements.txt
 
 serve: ## Start live-reload dev server
-	mkdocs serve --dev-addr=0.0.0.0:8000
+	mkdocs serve --dev-addr=0.0.0.0:7000
 
 build: ## Build static site
 	mkdocs build

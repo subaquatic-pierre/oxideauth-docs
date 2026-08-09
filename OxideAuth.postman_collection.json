@@ -18,12 +18,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                ""
-              ]
+              "host": ["{{host}}"],
+              "path": [""]
             },
             "description": "### Root Index\n\nReturns a simple greeting message. Used to verify the API is running.\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": \"Hello, World\"\n}\n```"
           },
@@ -36,12 +32,8 @@
             "header": [],
             "url": {
               "raw": "{{host}}/health-check",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "health-check"
-              ]
+              "host": ["{{host}}"],
+              "path": ["health-check"]
             },
             "description": "### Health Check\n\nReturns the health status of the API.\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": \"Healthy\"\n}\n```"
           },
@@ -51,7 +43,7 @@
     },
     {
       "name": "Auth",
-      "description": "Authentication endpoints for local email/password login, Google OAuth2, token management, password reset, and account verification.\n\nPublic endpoints (no Bearer token required): Register, Login, Reset Password, Update Password, Confirm Account, Resend Confirm, OAuth Initiate, OAuth Callback.\nProtected endpoints (Bearer token required): Refresh Token, Revoke Token, Blacklist Token.\n\n## Client Variables\n| Variable | Purpose |\n|----------|---------|\n| `owner_email` | Test account email (default: user@email.com) |\n| `owner_password` | Test account password (default: password) |\n| `reset_token` | JWT from password reset email (set manually after testing reset flow) |\n| `confirm_token` | JWT from confirmation email (set manually after testing confirm flow) |",
+      "description": "Authentication endpoints for local email/password login, Google OAuth2, token management, password reset, and account verification.\n\nPublic endpoints (no Bearer token required): Register, Login, Reset Password, Update Password, Confirm Account, Resend Confirm, OAuth Initiate, OAuth Callback.\nProtected endpoints (Bearer token required): Refresh Token, Revoke Token.\n\n## Client Variables\n| Variable | Purpose |\n|----------|---------|\n| `owner_email` | Test account email (default: user@email.com) |\n| `owner_password` | Test account password (default: password) |\n| `reset_token` | JWT from password reset email (set manually after testing reset flow) |\n| `confirm_token` | JWT from confirmation email (set manually after testing confirm flow) |",
       "item": [
         {
           "name": "Register",
@@ -74,15 +66,10 @@
             },
             "url": {
               "raw": "{{host}}/auth/register",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
+              "host": ["{{host}}"],
+              "path": ["auth", "register"]
             },
-            "description": "### Register\n\nCreates a new local account with email and password. Returns a JWT token and the account object.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| email | string | Yes | Unique email address |\n| password | string | Yes | Account password (non-empty) |\n| name | string | No | Display name |\n\n#### Response\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"token\": \"eyJ...\",\n    \"account\": {\n      \"id\": \"uuid\",\n      \"email\": \"newuser@example.com\",\n      \"name\": \"New User\",\n      \"verified\": false,\n      \"enabled\": true\n    }\n  }\n}\n```\n\n#### Possible Errors\n- 400: Email already exists\n- 400: Missing or empty password\n- 400: Invalid email format"
+            "description": "### Register\n\nCreates a new local account with email and password. Returns a JWT token and the account object.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| email | string | Yes | Unique email address |\n| password | string | Yes | Account password (non-empty) |\n| name | string | No | Display name |\n\n#### Response\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"access_token\": \"eyJ...\",\n    \"refresh_token\": \"eyJ...\",\n    \"account\": {\n      \"id\": \"uuid\",\n      \"email\": \"newuser@example.com\",\n      \"name\": \"New User\",\n      \"verified\": false,\n      \"enabled\": true\n    }\n  }\n}\n```\n\n#### Possible Errors\n- 400: Email already exists\n- 400: Missing or empty password\n- 400: Invalid email format"
           },
           "response": []
         },
@@ -107,15 +94,10 @@
             },
             "url": {
               "raw": "{{host}}/auth/login",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{host}}"],
+              "path": ["auth", "login"]
             },
-            "description": "### Login\n\nAuthenticates with email and password credentials. Returns a JWT token (60-minute TTL) and the account object.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| email | string | Yes | Registered email address |\n| password | string | Yes | Account password |\n\n#### Response\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"token\": \"eyJ...\",\n    \"account\": {\n      \"id\": \"uuid\",\n      \"email\": \"user@email.com\",\n      \"name\": \"...\",\n      \"verified\": true,\n      \"enabled\": true\n    }\n  }\n}\n```\n\n#### Possible Errors\n- 401: Invalid credentials\n- 401: Account locked (rate limit — 5 failed attempts triggers 15-min lockout)\n- 401: Account disabled\n- 400: Attempt to login on OAuth-only account (use Google login or reset password)"
+            "description": "### Login\n\nAuthenticates with email and password credentials. Returns a JWT token (60-minute TTL) and the account object.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| email | string | Yes | Registered email address |\n| password | string | Yes | Account password |\n\n#### Response\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"access_token\": \"eyJ...\",\n    \"refresh_token\": \"eyJ...\",\n    \"account\": {\n      \"id\": \"uuid\",\n      \"email\": \"user@email.com\",\n      \"name\": \"...\",\n      \"verified\": true,\n      \"enabled\": true\n    }\n  }\n}\n```\n\n#### Possible Errors\n- 401: Invalid credentials\n- 401: Account locked (rate limit — 5 failed attempts triggers 15-min lockout)\n- 401: Account disabled\n- 400: Attempt to login on OAuth-only account (use Google login or reset password)"
           },
           "response": []
         },
@@ -150,15 +132,10 @@
             },
             "url": {
               "raw": "{{host}}/auth/refresh",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "auth",
-                "refresh"
-              ]
+              "host": ["{{host}}"],
+              "path": ["auth", "refresh"]
             },
-            "description": "### Refresh Token\n\nExchanges a valid Bearer token for a new JWT with renewed expiry (60 minutes from now). No request body required — the current token in the Authorization header provides identity.\n\n**Auth required:** Bearer token\n\n#### Response\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"token\": \"eyJ...\"\n  }\n}\n```\n\n#### Possible Errors\n- 401: Invalid, expired, or revoked token\n- 401: Account disabled"
+            "description": "### Refresh Token\n\nExchanges a valid Bearer token for a new JWT with renewed expiry (60 minutes from now). No request body required — the current token in the Authorization header provides identity.\n\n**Auth required:** Bearer token\n\n#### Response\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"access_token\": \"eyJ...\",\n    \"refresh_token\": \"eyJ...\"\n  }\n}\n```\n\n#### Possible Errors\n- 401: Invalid, expired, or revoked token\n- 401: Account disabled"
           },
           "response": []
         },
@@ -183,13 +160,8 @@
             },
             "url": {
               "raw": "{{host}}/auth/reset-password",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "auth",
-                "reset-password"
-              ]
+              "host": ["{{host}}"],
+              "path": ["auth", "reset-password"]
             },
             "description": "### Reset Password (Request)\n\nRequests a password reset email for the given address. Always returns success to prevent email enumeration. The reset token (24h TTL) is logged server-side and included in the email.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| email | string | Yes | The account email address |\n\n#### Response\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"message\": \"If an account exists for this email, a reset link has been sent.\"\n  }\n}\n```\n\n#### Note\nIf the email does not exist in the system, the same success response is returned (anti-enumeration). No email is sent in that case."
           },
@@ -216,13 +188,8 @@
             },
             "url": {
               "raw": "{{host}}/auth/update-password",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "auth",
-                "update-password"
-              ]
+              "host": ["{{host}}"],
+              "path": ["auth", "update-password"]
             },
             "description": "### Update Password (with Reset Token)\n\nSets a new password using a valid password reset token. The token must be of type `PasswordReset` and not expired (24h TTL).\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| token | string | Yes | JWT password reset token |\n| password | string | Yes | New password (non-empty) |\n\n#### Response\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"account_id\": \"uuid...\"\n  }\n}\n```\n\n#### Possible Errors\n- 400: Invalid or expired token\n- 400: Wrong token type (e.g., using a confirmation token)\n- 401: Account disabled"
           },
@@ -248,14 +215,9 @@
               }
             },
             "url": {
-              "raw": "{{host}}/auth/confirm-account",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "auth",
-                "confirm-account"
-              ]
+              "raw": "{{host}}/auth/confirm",
+              "host": ["{{host}}"],
+              "path": ["auth", "confirm"]
             },
             "description": "### Confirm Account\n\nVerifies a user's email address using a confirmation token generated during registration. The token must be of type `AccountConfirm` and not expired (24h TTL).\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| token | string | Yes | JWT confirmation token from registration email |\n\n#### Response\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"account_id\": \"uuid...\",\n    \"verified\": true\n  }\n}\n```\n\n#### Possible Errors\n- 400: Invalid or expired token\n- 400: Wrong token type\n- 400: Account already verified"
           },
@@ -282,13 +244,8 @@
             },
             "url": {
               "raw": "{{host}}/auth/resend-confirm",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "auth",
-                "resend-confirm"
-              ]
+              "host": ["{{host}}"],
+              "path": ["auth", "resend-confirm"]
             },
             "description": "### Resend Confirmation Email\n\nResends the account confirmation email for an unverified account. Silently succeeds if the account doesn't exist (anti-enumeration).\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| email | string | Yes | The account email address |\n\n#### Response\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"message\": \"If an unverified account exists, a new confirmation email has been sent.\"\n  }\n}\n```\n\n#### Possible Errors\n- 400: Account already verified"
           },
@@ -325,20 +282,75 @@
             },
             "url": {
               "raw": "{{host}}/auth/revoke",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "auth",
-                "revoke"
-              ]
+              "host": ["{{host}}"],
+              "path": ["auth", "revoke"]
             },
             "description": "### Revoke Token (Logout)\n\nRevokes the current JWT token, rendering it invalid for future requests. The token is blacklisted in Redis with a TTL matching its remaining lifetime and persisted to the database.\n\n**Auth required:** Bearer token (the token being revoked)\n\n#### Response\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"revoked\": true\n  }\n}\n```\n\n#### Possible Errors\n- 401: Invalid or expired token\n- 401: Token already revoked"
           },
           "response": []
         },
         {
-          "name": "Blacklist Token (Admin)",
+          "name": "OAuth: Initiate Google Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"redirect_url\": \"http://localhost:5000/dashboard\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/auth/oauth/google/initiate",
+              "host": ["{{host}}"],
+              "path": ["auth", "oauth", "google", "initiate"]
+            },
+            "description": "### OAuth: Initiate Google Login\n\nStarts the Google OAuth2 login flow. Generates a cryptographically random CSRF token, stores it in Redis (10-min TTL), and returns the complete Google authorization URL that the client should redirect the user to.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| redirect_url | string | Yes | Where to redirect the user after OAuth completes (your app's callback page) |\n\n#### Response\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"auth_url\": \"https://accounts.google.com/o/oauth2/v2/auth?client_id=...&redirect_uri=...&response_type=code&scope=openid+email+profile&state=...\"\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "OAuth: Google Callback",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/auth/oauth/google/callback?code={{oauth_code}}&state={{oauth_state}}",
+              "host": ["{{host}}"],
+              "path": ["auth", "oauth", "google", "callback"],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "{{oauth_code}}",
+                  "description": "Authorization code from Google redirect"
+                },
+                {
+                  "key": "state",
+                  "value": "{{oauth_state}}",
+                  "description": "CSRF state token from the initiation endpoint"
+                }
+              ]
+            },
+            "description": "### OAuth: Google Callback\n\nRead-only GET endpoint that Google redirects the user to after they complete the consent screen. Processes the authorization code, exchanges it for tokens, fetches the Google user profile, creates or links an account, and redirects the user to the client-provided `redirect_url` with the JWT token as a query parameter.\n\n**This is NOT a JSON endpoint** — it returns a 302 redirect.\n\n#### Query Parameters\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| code | string | Yes | Google OAuth2 authorization code |\n| state | string | Yes | CSRF state token (validated against Redis) |\n\n#### Response\n\n```http\nHTTP/1.1 302 Found\nLocation: http://localhost:5000/dashboard?token=eyJ...\n```\n\n#### Possible Error Redirects\n- `?error=invalid_state` — CSRF mismatch\n- `?error=oauth_failed` — Google API error or invalid code\n\n#### Note\nThis endpoint is meant to be called by the browser (Google redirect), not directly via Postman. Use the OAuth Initiate endpoint to get the `auth_url`, then follow it in a browser."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Clients",
+      "description": "Client registration and management for external microservices. Clients are workspace-scoped entities used for token validation and receiving push updates.\n\nNote: Clients are NOT OAuth2/OIDC clients — they are microservice registration entities.\n\n**Auth required:** Bearer token for all endpoints.",
+      "item": [
+        {
+          "name": "Create Client",
           "request": {
             "auth": {
               "type": "bearer",
@@ -359,7 +371,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"token_hash\": \"<sha256-hex-of-token>\",\n    \"reason\": \"Suspicious activity detected\"\n}",
+              "raw": "{\n    \"workspace_id\": \"{{workspace_id}}\",\n    \"name\": \"Payment Service\",\n    \"endpoint\": \"https://payments.example.com/oxideauth/updates\",\n    \"description\": \"Handles payment processing and validates user tokens\",\n    \"tags\": [\"payments\", \"production\"],\n    \"meta\": { \"schema_version\": \"1.0\" }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -367,22 +379,27 @@
               }
             },
             "url": {
-              "raw": "{{host}}/auth/blacklist",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "auth",
-                "blacklist"
-              ]
+              "raw": "{{host}}/clients/create",
+              "host": ["{{host}}"],
+              "path": ["clients", "create"]
             },
-            "description": "### Blacklist Token (Admin)\n\nAdmin-only endpoint to forcefully blacklist a specific token by its SHA256 hash, terminating that session regardless of who owns it. Requires the `token:revokeAny` permission.\n\n**Auth required:** Bearer token with admin permissions\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| token_hash | string | Yes | SHA256 hex string of the token to blacklist |\n| reason | string | No | Reason for blacklisting (for audit trail) |\n\n#### Response\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"blacklisted\": true\n  }\n}\n```\n\n#### Possible Errors\n- 401: Insufficient permissions (requires `token:revokeAny`)\n- 400: Token already blacklisted"
+            "description": "### Create Client\n\nCreates a new client within a workspace. The client secret is returned once — store it securely.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | Owning workspace |\n| name | string | Yes | Human-readable name |\n| endpoint | string | No | Update endpoint URL for push notifications |\n| description | string | No | Optional description |\n| tags | string[] | No | Categorization tags |\n| meta | object | No | Metadata (requires schema_version) |\n\n#### Response\n\nReturns the created Client object including the `secret` field (only returned once).\n\n!!! warning Store the secret immediately — it cannot be retrieved later."
           },
           "response": []
         },
         {
-          "name": "OAuth: Initiate Google Login",
+          "name": "Describe Client",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -392,7 +409,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"redirect_url\": \"http://localhost:3000/dashboard\"\n}",
+              "raw": "{\n    \"workspace_id\": \"{{workspace_id}}\",\n    \"id\": \"{{client_id}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -400,50 +417,163 @@
               }
             },
             "url": {
-              "raw": "{{host}}/auth/oauth/google",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "auth",
-                "oauth",
-                "google"
-              ]
+              "raw": "{{host}}/clients/describe",
+              "host": ["{{host}}"],
+              "path": ["clients", "describe"]
             },
-            "description": "### OAuth: Initiate Google Login\n\nStarts the Google OAuth2 login flow. Generates a cryptographically random CSRF token, stores it in Redis (10-min TTL), and returns the complete Google authorization URL that the client should redirect the user to.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| redirect_url | string | Yes | Where to redirect the user after OAuth completes (your app's callback page) |\n\n#### Response\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"auth_url\": \"https://accounts.google.com/o/oauth2/v2/auth?client_id=...&redirect_uri=...&response_type=code&scope=openid+email+profile&state=...\"\n  }\n}\n```"
+            "description": "### Describe Client\n\nRetrieves a client by ID within a workspace. The secret is never returned.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | Workspace context |\n| id | uuid | Yes | Client ID to describe |\n\n#### Response\n\nReturns the Client object (excluding secret)."
           },
           "response": []
         },
         {
-          "name": "OAuth: Google Callback",
+          "name": "List Clients",
           "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/auth/oauth/google/callback?code={{oauth_code}}&state={{oauth_state}}",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "auth",
-                "oauth",
-                "google",
-                "callback"
-              ],
-              "query": [
+            "auth": {
+              "type": "bearer",
+              "bearer": [
                 {
-                  "key": "code",
-                  "value": "{{oauth_code}}",
-                  "description": "Authorization code from Google redirect"
-                },
-                {
-                  "key": "state",
-                  "value": "{{oauth_state}}",
-                  "description": "CSRF state token from the initiation endpoint"
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
                 }
               ]
             },
-            "description": "### OAuth: Google Callback\n\nRead-only GET endpoint that Google redirects the user to after they complete the consent screen. Processes the authorization code, exchanges it for tokens, fetches the Google user profile, creates or links an account, and redirects the user to the client-provided `redirect_url` with the JWT token as a query parameter.\n\n**This is NOT a JSON endpoint** — it returns a 302 redirect.\n\n#### Query Parameters\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| code | string | Yes | Google OAuth2 authorization code |\n| state | string | Yes | CSRF state token (validated against Redis) |\n\n#### Response\n\n```http\nHTTP/1.1 302 Found\nLocation: http://localhost:3000/dashboard?token=eyJ...\n```\n\n#### Possible Error Redirects\n- `?error=invalid_state` — CSRF mismatch\n- `?error=oauth_failed` — Google API error or invalid code\n\n#### Note\nThis endpoint is meant to be called by the browser (Google redirect), not directly via Postman. Use the OAuth Initiate endpoint to get the `auth_url`, then follow it in a browser."
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"workspace_id\": \"{{workspace_id}}\",\n    \"filter\": {\n        \"tags\": [],\n        \"fields\": {}\n    },\n    \"options\": {\n        \"limit\": 10,\n        \"offset\": 0,\n        \"order_bys\": \"!created_at\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/clients/list",
+              "host": ["{{host}}"],
+              "path": ["clients", "list"]
+            },
+            "description": "### List Clients\n\nLists all clients within a workspace with optional filtering and pagination.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | Workspace context |\n| filter | object | No | Filter with tags and fields |\n| options | object | No | Pagination with limit, offset, order_bys |\n\n#### Filter Fields\n- id: UUID\n- name: string\n- description: string\n- enabled: boolean\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"clients\": [...],\n    \"metadata\": { ... }\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Client",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"workspace_id\": \"{{workspace_id}}\",\n    \"id\": \"{{client_id}}\",\n    \"name\": \"Payment Service v2\",\n    \"endpoint\": \"https://payments.example.com/v2/oxideauth/updates\",\n    \"enabled\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/clients/update",
+              "host": ["{{host}}"],
+              "path": ["clients", "update"]
+            },
+            "description": "### Update Client\n\nUpdates client fields. All fields except workspace_id and id are optional.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | Workspace context |\n| id | uuid | Yes | Client ID to update |\n| name | string | No | New display name |\n| endpoint | string | No | New update endpoint URL |\n| description | string | No | New description |\n| tags | string[] | No | Replacement tags |\n| meta | object | No | New metadata |\n| enabled | bool | No | Enable/disable the client |\n\n#### Response\n\nReturns the updated Client object."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Client",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"workspace_id\": \"{{workspace_id}}\",\n    \"id\": \"{{client_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/clients/delete",
+              "host": ["{{host}}"],
+              "path": ["clients", "delete"]
+            },
+            "description": "### Delete Client\n\nDeletes a client by ID. Destructive operation — cannot be undone.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | Workspace context |\n| id | uuid | Yes | Client ID to delete |\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"id\": \"uuid...\"\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Regenerate Client Secret",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"workspace_id\": \"{{workspace_id}}\",\n    \"id\": \"{{client_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/clients/regenerate-secret",
+              "host": ["{{host}}"],
+              "path": ["clients", "regenerate-secret"]
+            },
+            "description": "### Regenerate Client Secret\n\nRotates the client secret. Old secret is immediately invalidated. New secret returned in plaintext.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | Workspace context |\n| id | uuid | Yes | Client ID |\n\n#### Response\n\n| Field | Type | Description |\n|-------|------|-------------|\n| id | uuid | Client identifier |\n| secret | string | New plaintext secret (store immediately) |\n\n!!! warning The old secret stops working immediately."
           },
           "response": []
         }
@@ -484,13 +614,8 @@
             },
             "url": {
               "raw": "{{host}}/workspace/create",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "workspace",
-                "create"
-              ]
+              "host": ["{{host}}"],
+              "path": ["workspace", "create"]
             },
             "description": "### Create Workspace\n\nCreates a new workspace (tenant). The slug must be globally unique.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| name | string | Yes | Display name of the workspace |\n| slug | string | Yes | URL-friendly unique identifier |\n| description | string | No | Optional description |\n| config | object | Yes | Workspace configuration (must include `schema_version`) |\n| tags | string[] | Yes | Tags for categorization |\n| meta | object | Yes | Metadata (must include `schema_version`) |\n\n#### Response\n\nReturns the created workspace object with `id`, `name`, `slug`, `created_at`, etc."
           },
@@ -527,13 +652,8 @@
             },
             "url": {
               "raw": "{{host}}/workspace/describe",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "workspace",
-                "describe"
-              ]
+              "host": ["{{host}}"],
+              "path": ["workspace", "describe"]
             },
             "description": "### Describe Workspace\n\nRetrieves a workspace by its `id` or `slug`.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | No* | Workspace ID (either id or slug required) |\n| slug | string | No* | Workspace slug (either id or slug required) |\n\n#### Response\n\nReturns the full workspace object with all fields."
           },
@@ -570,13 +690,8 @@
             },
             "url": {
               "raw": "{{host}}/workspace/list",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "workspace",
-                "list"
-              ]
+              "host": ["{{host}}"],
+              "path": ["workspace", "list"]
             },
             "description": "### List Workspaces\n\nLists all workspaces with optional filtering and pagination.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| filter | object | No | Filter params with `tags` (string[]) and `fields` (object with field filters) |\n| options | object | No | Pagination: `limit` (int), `offset` (int), `order_bys` (string, e.g. \"!created_at\" for DESC) |\n\n#### Filter Fields\n- `id`: UUID filter\n- `name`: string filter\n- `slug`: string filter\n- `description`: string filter\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"workspaces\": [...],\n    \"metadata\": {\n      \"total\": 42,\n      \"count\": 10,\n      \"offset\": 0,\n      \"limit\": 10,\n      \"order_bys\": [\"!created_at\"]\n    }\n  }\n}\n```"
           },
@@ -613,13 +728,8 @@
             },
             "url": {
               "raw": "{{host}}/workspace/update",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "workspace",
-                "update"
-              ]
+              "host": ["{{host}}"],
+              "path": ["workspace", "update"]
             },
             "description": "### Update Workspace\n\nUpdates workspace fields. All fields are optional — only include what you want to change.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | No* | Workspace ID (either id or slug required) |\n| slug | string | No* | Workspace slug to identify (either id or slug required) |\n| name | string | No | New display name |\n| description | string | No | New description |\n| config | object | No | New config |\n| tags | string[] | No | New tags |\n| meta | object | No | New metadata |\n\n#### Response\n\nReturns the updated workspace object."
           },
@@ -656,13 +766,8 @@
             },
             "url": {
               "raw": "{{host}}/workspace/delete",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "workspace",
-                "delete"
-              ]
+              "host": ["{{host}}"],
+              "path": ["workspace", "delete"]
             },
             "description": "### Delete Workspace\n\nDeletes a workspace by `id` or `slug`. This is a destructive operation.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | No* | Workspace ID (either id or slug required) |\n| slug | string | No* | Workspace slug (either id or slug required) |\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"id\": \"uuid...\",\n    \"slug\": \"my-org\",\n    \"name\": \"My Organization\"\n  }\n}\n```"
           },
@@ -705,13 +810,8 @@
             },
             "url": {
               "raw": "{{host}}/accounts/create",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "accounts",
-                "create"
-              ]
+              "host": ["{{host}}"],
+              "path": ["accounts", "create"]
             },
             "description": "### Create Account\n\nCreates a new user account within a workspace. The email must be unique.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| email | string | Yes | Unique email address |\n| password | string | Yes | Account password (hashed with Argon2) |\n| workspace_id | uuid | Yes | The workspace to associate with |\n| name | string | Yes | Display name |\n| description | string | No | Optional description |\n| avatar_url | string | No | Avatar image URL |\n| tags | string[] | No | Tags for categorization |\n| meta | object | No | Metadata (must include `schema_version`) |\n\n#### Response\n\nReturns the created account object."
           },
@@ -748,13 +848,8 @@
             },
             "url": {
               "raw": "{{host}}/accounts/describe",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "accounts",
-                "describe"
-              ]
+              "host": ["{{host}}"],
+              "path": ["accounts", "describe"]
             },
             "description": "### Describe Account\n\nRetrieves an account by `id` or `email`.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| id | uuid | No* | Account ID (either id or email required) |\n| email | string | No* | Account email (either id or email required) |\n\n#### Response\n\nReturns the full account object with `id`, `email`, `name`, `enabled`, `verified`, `created_at`, etc."
           },
@@ -791,13 +886,8 @@
             },
             "url": {
               "raw": "{{host}}/accounts/list",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "accounts",
-                "list"
-              ]
+              "host": ["{{host}}"],
+              "path": ["accounts", "list"]
             },
             "description": "### List Accounts\n\nLists accounts in a workspace with optional filtering and pagination.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| filter | object | No | Filter with `tags` and `fields` |\n| options | object | No | Pagination with `limit`, `offset`, `order_bys` |\n\n#### Filter Fields (within `fields`)\n- `id`: UUID\n- `email`: string\n- `name`: string\n- `description`: string\n- `avatar_url`: string\n- `verified`: bool\n- `enabled`: bool\n- `created_by`: UUID\n- `created_at`: datetime\n- `updated_by`: UUID\n- `updated_at`: datetime\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"accounts\": [...],\n    \"metadata\": { \"total\": 15, \"count\": 10, \"offset\": 0, \"limit\": 10, \"order_bys\": [\"!created_at\"] }\n  }\n}\n```"
           },
@@ -834,13 +924,8 @@
             },
             "url": {
               "raw": "{{host}}/accounts/update",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "accounts",
-                "update"
-              ]
+              "host": ["{{host}}"],
+              "path": ["accounts", "update"]
             },
             "description": "### Update Account\n\nUpdates account fields. All fields except `workspace_id` are optional.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| id | uuid | No* | Account ID (either id or email required) |\n| email | string | No* | Account email to identify (when not using id) |\n| name | string | No | New display name |\n| description | string | No | New description |\n| avatar_url | string | No | New avatar URL |\n| enabled | bool | No | Enable/disable account |\n| verified | bool | No | Verify/unverify account |\n| tags | string[] | No | New tags |\n| meta | object | No | New metadata |\n\n#### Response\n\nReturns the updated account object."
           },
@@ -877,13 +962,8 @@
             },
             "url": {
               "raw": "{{host}}/accounts/delete",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "accounts",
-                "delete"
-              ]
+              "host": ["{{host}}"],
+              "path": ["accounts", "delete"]
             },
             "description": "### Delete Account\n\nDeletes an account by `id` or `email`.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| id | uuid | No* | Account ID (either id or email required) |\n| email | string | No* | Account email (either id or email required) |\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"id\": \"uuid...\"\n  }\n}\n```"
           },
@@ -926,13 +1006,8 @@
             },
             "url": {
               "raw": "{{host}}/projects/create",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "projects",
-                "create"
-              ]
+              "host": ["{{host}}"],
+              "path": ["projects", "create"]
             },
             "description": "### Create Project\n\nCreates a new project within a workspace. The name must be unique within the workspace.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The parent workspace |\n| name | string | Yes | Project name (unique per workspace) |\n| code | string | No | Short code identifier |\n| description | string | No | Optional description |\n| config | object | Yes | Project configuration |\n| tags | string[] | Yes | Tags for categorization |\n| meta | object | Yes | Metadata |\n\n#### Response\n\nReturns the created project object."
           },
@@ -969,13 +1044,8 @@
             },
             "url": {
               "raw": "{{host}}/projects/describe",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "projects",
-                "describe"
-              ]
+              "host": ["{{host}}"],
+              "path": ["projects", "describe"]
             },
             "description": "### Describe Project\n\nRetrieves a project by `id` or `code` within a workspace.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| id | uuid | No* | Project ID (either id or code required) |\n| code | string | No* | Project code (either id or code required) |\n\n#### Response\n\nReturns the full project object."
           },
@@ -1012,13 +1082,8 @@
             },
             "url": {
               "raw": "{{host}}/projects/list",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "projects",
-                "list"
-              ]
+              "host": ["{{host}}"],
+              "path": ["projects", "list"]
             },
             "description": "### List Projects\n\nLists projects within a workspace with optional filtering and pagination.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| filter | object | No | Filter with `tags` and `fields` |\n| options | object | No | Pagination with `limit`, `offset`, `order_bys` |\n\n#### Filter Fields\n- `id`: UUID\n- `workspace_id`: UUID\n- `name`: string\n- `code`: string\n- `description`: string\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"projects\": [...],\n    \"metadata\": { ... }\n  }\n}\n```"
           },
@@ -1055,13 +1120,8 @@
             },
             "url": {
               "raw": "{{host}}/projects/update",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "projects",
-                "update"
-              ]
+              "host": ["{{host}}"],
+              "path": ["projects", "update"]
             },
             "description": "### Update Project\n\nUpdates project fields. All fields except `workspace_id` are optional.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| id | uuid | No* | Project ID (either id or code required) |\n| code | string | No* | Current project code to identify (when not using id) |\n| name | string | No | New name |\n| new_code | string | No | New code (to rename) |\n| description | string | No | New description |\n| config | object | No | New config |\n| tags | string[] | No | New tags |\n| meta | object | No | New metadata |\n\n#### Response\n\nReturns the updated project object."
           },
@@ -1098,13 +1158,8 @@
             },
             "url": {
               "raw": "{{host}}/projects/delete",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "projects",
-                "delete"
-              ]
+              "host": ["{{host}}"],
+              "path": ["projects", "delete"]
             },
             "description": "### Delete Project\n\nDeletes a project by `id` or `code`.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| id | uuid | No* | Project ID (either id or code required) |\n| code | string | No* | Project code (either id or code required) |\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"id\": \"uuid...\",\n    \"code\": \"web-app\",\n    \"name\": \"Web Application\"\n  }\n}\n```"
           },
@@ -1147,13 +1202,8 @@
             },
             "url": {
               "raw": "{{host}}/roles/create",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "roles",
-                "create"
-              ]
+              "host": ["{{host}}"],
+              "path": ["roles", "create"]
             },
             "description": "### Create Role\n\nCreates a new role with associated permissions. The name must be unique within the workspace.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| name | string | Yes | Role name (unique per workspace) |\n| description | string | No | Optional description |\n| permission_ids | uuid[] | Yes | Permissions to attach to this role |\n| tags | string[] | Yes | Tags |\n| meta | object | Yes | Metadata |\n\n#### Response\n\nReturns the created role object with nested permissions."
           },
@@ -1190,13 +1240,8 @@
             },
             "url": {
               "raw": "{{host}}/roles/describe",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "roles",
-                "describe"
-              ]
+              "host": ["{{host}}"],
+              "path": ["roles", "describe"]
             },
             "description": "### Describe Role\n\nRetrieves a role by its ID.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| id | uuid | Yes | The role ID |\n\n#### Response\n\nReturns the role object with nested permissions."
           },
@@ -1233,13 +1278,8 @@
             },
             "url": {
               "raw": "{{host}}/roles/list",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "roles",
-                "list"
-              ]
+              "host": ["{{host}}"],
+              "path": ["roles", "list"]
             },
             "description": "### List Roles\n\nLists roles within a workspace with optional filtering and pagination.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| filter | object | No | Filter with `tags` and `fields` |\n| options | object | No | Pagination with `limit`, `offset`, `order_bys` |\n\n#### Filter Fields\n- `id`: UUID\n- `workspace_id`: UUID\n- `name`: string\n- `description`: string\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"roles\": [...],\n    \"metadata\": { ... }\n  }\n}\n```"
           },
@@ -1276,13 +1316,8 @@
             },
             "url": {
               "raw": "{{host}}/roles/update",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "roles",
-                "update"
-              ]
+              "host": ["{{host}}"],
+              "path": ["roles", "update"]
             },
             "description": "### Update Role\n\nUpdates role fields. All fields except `workspace_id` and `id` are optional.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | The role ID |\n| workspace_id | uuid | Yes | The workspace context |\n| name | string | No | New name |\n| description | string | No | New description |\n| permission_ids | uuid[] | No | Replace attached permissions |\n| tags | string[] | No | New tags |\n| meta | object | No | New metadata |\n\n#### Response\n\nReturns the updated role object."
           },
@@ -1319,13 +1354,8 @@
             },
             "url": {
               "raw": "{{host}}/roles/delete",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "roles",
-                "delete"
-              ]
+              "host": ["{{host}}"],
+              "path": ["roles", "delete"]
             },
             "description": "### Delete Role\n\nDeletes a role by ID.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | The role ID |\n| workspace_id | uuid | Yes | The workspace context |\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"id\": \"uuid...\"\n  }\n}\n```"
           },
@@ -1368,13 +1398,8 @@
             },
             "url": {
               "raw": "{{host}}/permissions/create",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "permissions",
-                "create"
-              ]
+              "host": ["{{host}}"],
+              "path": ["permissions", "create"]
             },
             "description": "### Create Permission\n\nCreates a new permission in a workspace. The name must be unique within the workspace.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| name | string | Yes | Permission name (unique per workspace, e.g. \"account:read\") |\n| code | string | No | Machine-readable code |\n| description | string | No | Human-readable description |\n| tags | string[] | Yes | Tags |\n| meta | object | Yes | Metadata |\n\n#### Permission Naming Convention\nPermissions use `resource:action` format with wildcard support:\n- `*` — all permissions\n- `account:*` — all account actions\n- `*:read` — read on any resource\n\n#### Response\n\nReturns the created permission object."
           },
@@ -1411,13 +1436,8 @@
             },
             "url": {
               "raw": "{{host}}/permissions/describe",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "permissions",
-                "describe"
-              ]
+              "host": ["{{host}}"],
+              "path": ["permissions", "describe"]
             },
             "description": "### Describe Permission\n\nRetrieves a permission by `id` or `code`.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| id | uuid | No* | Permission ID (either id or code required) |\n| code | string | No* | Permission code (either id or code required) |\n\n#### Response\n\nReturns the full permission object."
           },
@@ -1454,13 +1474,8 @@
             },
             "url": {
               "raw": "{{host}}/permissions/list",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "permissions",
-                "list"
-              ]
+              "host": ["{{host}}"],
+              "path": ["permissions", "list"]
             },
             "description": "### List Permissions\n\nLists permissions within a workspace with optional filtering and pagination.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| filter | object | No | Filter with `tags` and `fields` |\n| options | object | No | Pagination |\n\n#### Filter Fields\n- `id`: UUID\n- `workspace_id`: UUID\n- `name`: string\n- `code`: string\n- `description`: string\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"permissions\": [...],\n    \"metadata\": { ... }\n  }\n}\n```"
           },
@@ -1497,13 +1512,8 @@
             },
             "url": {
               "raw": "{{host}}/permissions/update",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "permissions",
-                "update"
-              ]
+              "host": ["{{host}}"],
+              "path": ["permissions", "update"]
             },
             "description": "### Update Permission\n\nUpdates a permission's metadata fields.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | The permission ID |\n| workspace_id | uuid | Yes | The workspace context |\n| name | string | No | New name |\n| code | string | No | New code |\n| description | string | No | New description |\n| tags | string[] | No | New tags |\n| meta | object | No | New metadata |\n\n#### Response\n\nReturns the updated permission object."
           },
@@ -1540,13 +1550,8 @@
             },
             "url": {
               "raw": "{{host}}/permissions/delete",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "permissions",
-                "delete"
-              ]
+              "host": ["{{host}}"],
+              "path": ["permissions", "delete"]
             },
             "description": "### Delete Permission\n\nDeletes a permission by ID.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | The permission ID |\n| workspace_id | uuid | Yes | The workspace context |\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"id\": \"uuid...\"\n  }\n}\n```"
           },
@@ -1589,13 +1594,8 @@
             },
             "url": {
               "raw": "{{host}}/memberships/create",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "memberships",
-                "create"
-              ]
+              "host": ["{{host}}"],
+              "path": ["memberships", "create"]
             },
             "description": "### Create Membership\n\nCreates a membership linking an account to a workspace or project with assigned roles.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| account_id | uuid | Yes | The account to link |\n| workspace_id | uuid | Yes | The workspace context |\n| scope | string | Yes | Either `\"workspace\"` or `\"project\"` |\n| status | string | Yes | One of: `\"invited\"`, `\"active\"`, `\"suspended\"` |\n| project_id | uuid | No | Required if scope is `\"project\"` |\n| role_ids | uuid[] | Yes | Roles to assign |\n| tags | string[] | Yes | Tags |\n| meta | object | Yes | Metadata |\n\n#### Response\n\nReturns the created membership object with nested roles."
           },
@@ -1632,13 +1632,8 @@
             },
             "url": {
               "raw": "{{host}}/memberships/describe",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "memberships",
-                "describe"
-              ]
+              "host": ["{{host}}"],
+              "path": ["memberships", "describe"]
             },
             "description": "### Describe Membership\n\nRetrieves a membership by ID.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | The membership ID |\n| workspace_id | uuid | Yes | The workspace context |\n\n#### Response\n\nReturns the full membership object including `account_id`, `scope`, `status`, `project_id`, and nested `roles`."
           },
@@ -1675,13 +1670,8 @@
             },
             "url": {
               "raw": "{{host}}/memberships/list",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "memberships",
-                "list"
-              ]
+              "host": ["{{host}}"],
+              "path": ["memberships", "list"]
             },
             "description": "### List Memberships\n\nLists memberships within a workspace with optional filtering and pagination.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| filter | object | No | Filter with `tags` and `fields` |\n| options | object | No | Pagination |\n\n#### Filter Fields\n- `id`: UUID\n- `account_id`: UUID\n- `workspace_id`: UUID\n- `scope`: string (\"workspace\" or \"project\")\n- `status`: string (\"invited\", \"active\", \"suspended\")\n- `project_id`: UUID\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"memberships\": [...],\n    \"metadata\": { ... }\n  }\n}\n```"
           },
@@ -1718,13 +1708,8 @@
             },
             "url": {
               "raw": "{{host}}/memberships/update",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "memberships",
-                "update"
-              ]
+              "host": ["{{host}}"],
+              "path": ["memberships", "update"]
             },
             "description": "### Update Membership\n\nUpdates membership fields. All fields except `id` and `workspace_id` are optional.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | The membership ID |\n| workspace_id | uuid | Yes | The workspace context |\n| status | string | No | \"invited\", \"active\", or \"suspended\" |\n| scope | string | No | \"workspace\" or \"project\" |\n| project_id | uuid | No | Project ID (for project scope) |\n| tags | string[] | No | New tags |\n| meta | object | No | New metadata |\n\n#### Response\n\nReturns the updated membership object."
           },
@@ -1761,13 +1746,8 @@
             },
             "url": {
               "raw": "{{host}}/memberships/delete",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "memberships",
-                "delete"
-              ]
+              "host": ["{{host}}"],
+              "path": ["memberships", "delete"]
             },
             "description": "### Delete Membership\n\nDeletes a membership by ID.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | The membership ID |\n| workspace_id | uuid | Yes | The workspace context |\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"id\": \"uuid...\"\n  }\n}\n```"
           },
@@ -1810,13 +1790,8 @@
             },
             "url": {
               "raw": "{{host}}/credentials/describe",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "credentials",
-                "describe"
-              ]
+              "host": ["{{host}}"],
+              "path": ["credentials", "describe"]
             },
             "description": "### Describe Credential\n\nRetrieves a credential by ID.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | The credential ID |\n| account_id | uuid | Yes | The owning account |\n| workspace_id | uuid | Yes | The workspace context |\n| provider_id | string | No | External provider ID |\n| email | string | No | Associated email |\n\n#### Response\n\nReturns the credential object with `kind`, `provider`, `status`, `last_used_at`, etc."
           },
@@ -1853,13 +1828,8 @@
             },
             "url": {
               "raw": "{{host}}/credentials/list",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "credentials",
-                "list"
-              ]
+              "host": ["{{host}}"],
+              "path": ["credentials", "list"]
             },
             "description": "### List Credentials\n\nLists credentials within a workspace with optional filtering.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| filter | object | No | Filter with `tags` and `fields` |\n| options | object | No | Pagination |\n\n#### Filter Fields\n- `id`: UUID\n- `account_id`: UUID\n- `workspace_id`: UUID\n- `kind`: string (\"password\", \"oauth\", \"sso\", \"api_key\")\n- `provider`: string (\"local\", \"google\", \"github\")\n- `status`: string (\"active\", \"revoked\", \"pending\")\n- `provider_id`: string\n- `email`: string\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"credentials\": [...],\n    \"metadata\": { ... }\n  }\n}\n```"
           },
@@ -1896,13 +1866,8 @@
             },
             "url": {
               "raw": "{{host}}/credentials/update",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "credentials",
-                "update"
-              ]
+              "host": ["{{host}}"],
+              "path": ["credentials", "update"]
             },
             "description": "### Update Credential\n\nUpdates a credential's fields. All fields except `id`, `account_id`, and `workspace_id` are optional.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | The credential ID |\n| account_id | uuid | Yes | The owning account |\n| workspace_id | uuid | Yes | The workspace context |\n| kind | string | No | \"password\", \"oauth\", \"sso\", \"api_key\" |\n| provider | string | No | \"local\", \"google\", \"github\" |\n| status | string | No | \"active\", \"revoked\", \"pending\" |\n| provider_id | string | No | External provider ID |\n| email | string | No | Email address |\n| new_provider_id | string | No | New external provider ID |\n| new_email | string | No | New associated email |\n| secret | string | No | New password/secret |\n| last_used_at | datetime | No | Last usage timestamp (RFC 3339) |\n| tags | string[] | No | New tags |\n| meta | object | No | New metadata |\n\n#### Response\n\nReturns the updated credential object."
           },
@@ -1939,13 +1904,8 @@
             },
             "url": {
               "raw": "{{host}}/credentials/delete",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "credentials",
-                "delete"
-              ]
+              "host": ["{{host}}"],
+              "path": ["credentials", "delete"]
             },
             "description": "### Delete Credential\n\nDeletes a credential by ID.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | The credential ID |\n| account_id | uuid | Yes | The owning account |\n| workspace_id | uuid | Yes | The workspace context |\n| provider_id | string | No | External provider ID |\n| email | string | No | Associated email |\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"id\": \"uuid...\"\n  }\n}\n```"
           },
@@ -1954,22 +1914,12 @@
       ]
     },
     {
-      "name": "Tokens",
-      "description": "Token management for blacklisted/revoked tokens. Tokens are blacklisted as SHA-256 hashes.\n\nNote: No create or update endpoints — tokens are created during authentication and listed/deleted for revocation.\n\n**Auth required:** Bearer token for all endpoints.",
+      "name": "Validate",
+      "description": "Service-to-service token validation endpoint. Authenticates via client_secret in the request body (NOT Bearer token). Used by registered client microservices to validate end-user tokens.\n\n**Auth:** Client secret in request body — no Bearer token required.",
       "item": [
         {
-          "name": "Describe Token",
+          "name": "Validate Token",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{token}}",
-                  "type": "string"
-                }
-              ]
-            },
             "method": "POST",
             "header": [
               {
@@ -1979,7 +1929,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"workspace_id\": \"{{workspace_id}}\",\n    \"id\": \"{{blacklisted_token_id}}\"\n}",
+              "raw": "{\n    \"workspace_id\": \"{{workspace_id}}\",\n    \"client_secret\": \"{{client_secret}}\",\n    \"user_token\": \"{{token}}\",\n    \"required_permissions\": [\"project:read\", \"account:describe\"]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1987,102 +1937,11 @@
               }
             },
             "url": {
-              "raw": "{{host}}/tokens/describe",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "tokens",
-                "describe"
-              ]
+              "raw": "{{host}}/clients/validate",
+              "host": ["{{host}}"],
+              "path": ["clients", "validate"]
             },
-            "description": "### Describe Token\n\nRetrieves a blacklisted token entry by ID.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | The token entry ID |\n| workspace_id | uuid | Yes | The workspace context |\n\n#### Response\n\nReturns the token entry with `kind` (\"auth\" or \"password_reset\"), `account_id`, `expires_at`, `reason`, etc."
-          },
-          "response": []
-        },
-        {
-          "name": "List Tokens",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"workspace_id\": \"{{workspace_id}}\",\n    \"filter\": {\n        \"tags\": [],\n        \"fields\": {}\n    },\n    \"options\": {\n        \"limit\": 10,\n        \"offset\": 0,\n        \"order_bys\": \"!created_at\"\n    }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{host}}/tokens/list",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "tokens",
-                "list"
-              ]
-            },
-            "description": "### List Tokens\n\nLists blacklisted token entries within a workspace.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| filter | object | No | Filter with `tags` and `fields` |\n| options | object | No | Pagination |\n\n#### Filter Fields\n- `id`: UUID\n- `kind`: string (\"auth\", \"password_reset\")\n- `account_id`: UUID\n- `workspace_id`: UUID\n- `reason`: string\n- `expires_at`: datetime\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"tokens\": [...],\n    \"metadata\": { ... }\n  }\n}\n```"
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Token",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"workspace_id\": \"{{workspace_id}}\",\n    \"id\": \"{{blacklisted_token_id}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{host}}/tokens/delete",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "tokens",
-                "delete"
-              ]
-            },
-            "description": "### Delete Token\n\nRemoves a blacklisted token entry (un-revokes it).\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | The token entry ID |\n| workspace_id | uuid | Yes | The workspace context |\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"id\": \"uuid...\"\n  }\n}\n```"
+            "description": "### Validate Token\n\nValidates a user\\'s access token against required permissions. Authenticated by client_secret instead of Bearer token.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| workspace_id | uuid | Yes | The workspace context |\n| client_secret | string | Yes | Client\\'s plaintext secret (authenticates the client) |\n| user_token | string | Yes | End user\\'s JWT Bearer token to validate |\n| required_permissions | string[] | Yes | Permissions the user must possess |\n\n#### Success Response (Authorized)\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": { \"authorized\": true }\n}\n```\n\n#### Denial Response (Not Authorized)\n\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": { \"authorized\": false }\n}\n```\n\nNote: Always returns HTTP 200 — authorization failures return authorized: false, not 4xx errors (anti-enumeration)."
           },
           "response": []
         }
@@ -2132,11 +1991,6 @@
     },
     {
       "key": "credential_id",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "blacklisted_token_id",
       "value": "",
       "type": "string"
     }

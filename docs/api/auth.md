@@ -4,7 +4,7 @@ Authentication endpoints for local email/password login, Google OAuth2, token ma
 
 **Public endpoints** (no Bearer token required): Register, Login, Reset Password, Update Password, Confirm Account, Resend Confirm, OAuth Initiate, OAuth Callback.
 
-**Protected endpoints** (Bearer token required): Refresh Token, Revoke Token, Blacklist Token.
+**Protected endpoints** (Bearer token required): Refresh Token, Revoke Token.
 
 ---
 
@@ -39,7 +39,8 @@ Creates a new local account with email and password. Returns a JWT token and the
   "success": true,
   "status": 200,
   "data": {
-    "token": "eyJ...",
+    "access_token": "eyJ...",
+    "refresh_token": "eyJ...",
     "account": {
       "id": "550e8400-e29b-41d4-a716-446655440000",
       "email": "newuser@example.com",
@@ -90,7 +91,8 @@ Authenticates with email and password credentials. Returns a JWT token (60-minut
   "success": true,
   "status": 200,
   "data": {
-    "token": "eyJ...",
+    "access_token": "eyJ...",
+    "refresh_token": "eyJ...",
     "account": {
       "id": "550e8400-e29b-41d4-a716-446655440000",
       "email": "user@email.com",
@@ -141,7 +143,8 @@ Content-Type: application/json
   "success": true,
   "status": 200,
   "data": {
-    "token": "eyJ..."
+    "access_token": "eyJ...",
+    "refresh_token": "eyJ..."
   }
 }
 ```
@@ -238,7 +241,7 @@ Sets a new password using a valid password reset token. The token must be of typ
 
 ## Confirm Account
 
-`POST /auth/confirm-account`
+`POST /auth/confirm`
 
 Verifies a user's email address using a confirmation token generated during registration. The token must be of type `AccountConfirm` and not expired (24h TTL).
 
@@ -360,54 +363,10 @@ Content-Type: application/json
 
 ---
 
-## Blacklist Token (Admin)
-
-`POST /auth/blacklist`
-
-Admin-only endpoint to forcefully blacklist a specific token by its SHA-256 hash, terminating that session regardless of who owns it. Requires the `token:revokeAny` permission.
-
-**Auth required:** Bearer token with admin permissions
-
-### Request Body
-
-| Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
-| `token_hash` | string | Yes | SHA-256 hex string of the token to blacklist |
-| `reason` | string | No | Reason for blacklisting (for audit trail) |
-
-### Example Request
-
-```json
-{
-  "token_hash": "a1b2c3d4e5f6...",
-  "reason": "Suspicious activity detected"
-}
-```
-
-### Response
-
-```json
-{
-  "success": true,
-  "status": 200,
-  "data": {
-    "blacklisted": true
-  }
-}
-```
-
-### Possible Errors
-
-| Status | Code | Description |
-|:------:|------|-------------|
-| 401 | `FORBIDDEN` | Caller does not have `token:revokeAny` permission |
-| 400 | `ALREADY_BLACKLISTED` | Token is already blacklisted |
-
----
 
 ## OAuth: Initiate Google Login
 
-`POST /auth/oauth/google`
+`POST /auth/oauth/google/initiate`
 
 Starts the Google OAuth2 login flow. Generates a cryptographically random CSRF token, stores it in Redis (10-min TTL), and returns the complete Google authorization URL that the client should redirect the user to.
 
@@ -421,7 +380,7 @@ Starts the Google OAuth2 login flow. Generates a cryptographically random CSRF t
 
 ```json
 {
-  "redirect_url": "http://localhost:3000/dashboard"
+  "redirect_url": "http://localhost:5000/dashboard"
 }
 ```
 
@@ -458,7 +417,7 @@ Read-only GET endpoint that Google redirects the user to after they complete the
 
 ```http
 HTTP/1.1 302 Found
-Location: http://localhost:3000/dashboard?token=eyJ...
+Location: http://localhost:5000/dashboard?token=eyJ...
 ```
 
 ### Error Redirects
@@ -483,8 +442,7 @@ Location: http://localhost:3000/dashboard?token=eyJ...
 | 4 | `POST /auth/revoke` | Yes | Invalidates `token` (logout) |
 | — | `POST /auth/reset-password` | No | Sends password reset email |
 | — | `POST /auth/update-password` | No | Sets new password via reset token |
-| — | `POST /auth/confirm-account` | No | Verifies email address |
+| — | `POST /auth/confirm` | No | Verifies email address |
 | — | `POST /auth/resend-confirm` | No | Resends confirmation email |
-| — | `POST /auth/blacklist` | Yes | Admin: force-revoke any token |
-| — | `POST /auth/oauth/google` | No | Starts Google OAuth2 flow |
+| — | `POST /auth/oauth/google/initiate` | No | Starts Google OAuth2 flow |
 | — | `GET /auth/oauth/google/callback` | No | Completes Google OAuth2 flow |

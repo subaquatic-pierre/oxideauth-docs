@@ -19,7 +19,7 @@ Built with [MkDocs](https://www.mkdocs.org/) + [Material for MkDocs](https://squ
 ```sh
 # Start all services including docs
 docker compose up -d
-# Docs available at http://localhost:8001
+# Docs available at http://localhost:7000
 ```
 
 The docs service hot-reloads on every file change — just edit markdown and refresh your browser.
@@ -32,7 +32,7 @@ make install
 
 # Start live-reload dev server
 make serve
-# Docs available at http://localhost:8000
+# Docs available at http://localhost:7000
 
 # Build static site
 make build
@@ -43,7 +43,7 @@ Or with the scripts directly:
 
 ```sh
 ./scripts/install.sh
-./scripts/serve.sh      # live-reload at http://localhost:8000
+./scripts/serve.sh      # live-reload at http://localhost:7000
 ./scripts/build.sh      # static site → site/
 ```
 
