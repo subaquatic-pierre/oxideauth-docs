@@ -17,7 +17,7 @@ Permissions follow the `resource:action` format with wildcard support:
 | `*:read` | Read on any resource |
 | `*` | All permissions |
 
-The `code` field provides a machine-readable shorthand (e.g., `account.read_any`).
+The `code` field provides a machine-readable identifier in the same `resource:action` format (e.g., `account:read_any`).
 
 ---
 
@@ -32,7 +32,7 @@ Creates a new permission in a workspace. The name must be unique within the work
 ```json
 {
   "name": "account:readAny",                   // string (required) - Permission name (e.g., "account:readAny")
-  "code": "account.read_any",                  // string (optional) - Machine-readable code
+  "code": "account:read_any",                  // string (optional) - Machine-readable code
   "description": "Allows reading any account in the workspace",  // string (optional) - Human-readable description
   "tags": ["account", "read"],                 // string[] (required) - Categorization tags
   "meta": {                                    // object (required) - Metadata (schema_version required)
@@ -49,7 +49,7 @@ Returns the created `Permission` object:
 {
   "id": "660e8400-e29b-41d4-a716-446655440001",      // UUID - Permission identifier
   "name": "account:readAny",                           // string - Permission name
-  "code": "account.read_any",                          // string? - Machine-readable code
+  "code": "account:read_any",                          // string? - Machine-readable code
   "description": "Allows reading any account in the workspace",  // string? - Description
   "tags": ["account", "read"],                         // string[] - Tags
   "meta": {                                            // object - Metadata
@@ -73,7 +73,7 @@ Retrieves a permission by `id` or `code`.
 ```json
 {
   "id": "660e8400-e29b-41d4-a716-446655440001",   // UUID (optional*) - Permission ID
-  "code": "account.read_any"                        // string (optional*) - Permission code
+  "code": "account:read_any"                        // string (optional*) - Permission code
 }
 ```
 
@@ -107,6 +107,12 @@ Lists permissions within a workspace.
 }
 ```
 
+!!! note "Filter Combination"
+    `filter.tags` and `filter.fields` are combined via **AND** logic — both conditions must match for a record to be returned.
+
+!!! tip "Empty Body"
+    Sending an empty body `{}` is valid — no filters are applied and default list options are used (limit=100, newest first).
+
 ### Filter Fields
 
 `id`, `workspace_id`, `name`, `code`, `description`
@@ -138,7 +144,7 @@ Updates permission metadata.
 {
   "id": "660e8400-e29b-41d4-a716-446655440001",   // UUID (required) - Permission ID
   "name": "account:readAny",                       // string (optional) - New name
-  "code": "account.read_any",                      // string (optional) - New code
+  "code": "account:read_any",                      // string (optional) - New code
   "description": "Allows reading any account (updated)",  // string (optional) - New description
   "tags": ["account", "read"],                     // string[] (optional) - Replacement tags
   "meta": {                                        // object (optional) - New metadata

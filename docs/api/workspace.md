@@ -94,8 +94,11 @@ Lists all workspaces with optional filtering and pagination.
 }
 ```
 
-!!! note "Filter Constraints"
-    You cannot provide both `filter.tags` and `filter.fields` simultaneously.
+!!! note "Filter Combination"
+    `filter.tags` and `filter.fields` are combined via **AND** logic — both conditions must match for a record to be returned.
+
+!!! tip "Empty Body"
+    Sending an empty body `{}` is valid — no filters are applied and default list options are used (limit=100, newest first).
 
 ### Response
 

@@ -34,12 +34,10 @@ Errors are returned with an HTTP error status code and a JSON body describing th
 
 | Status | Meaning |
 |--------|---------|
-| `400` | Invalid request body (malformed JSON, missing required fields) |
-| `401` | Missing, expired, or blacklisted token |
+| `400` | Invalid request body, validation errors, or duplicate resources (malformed JSON, missing/invalid fields, duplicate email/slug/name) |
+| `401` | Missing, expired, or revoked token |
 | `403` | Insufficient permissions for the requested operation |
 | `404` | Resource not found or unknown route |
-| `409` | Conflict (e.g., duplicate email, slug, or name) |
-| `422` | Validation error (invalid field values) |
 | `500` | Internal server error |
 
 ## Single-Resource Response

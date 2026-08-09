@@ -24,15 +24,18 @@ Tokens are **HS256** (HMAC-SHA256) JWTs signed with the `JWT_SECRET` environment
 | `exp` | integer | Expiration timestamp (Unix epoch) |
 | `iat` | integer | Issued-at timestamp (Unix epoch) |
 | `ty` | string | Token type (see below) |
+| `mem_ver` | integer | Membership token version, checked against cached value during validation |
+| `acc_ver` | integer | Account token version, checked against cached value during validation |
+| `sid` | UUID (optional) | Session ID; `null` for single-use tokens |
 
 ### Token Types
 
 | Type | Description | Max Age |
 |------|-------------|---------|
-| `Auth` | Standard access token | 24 hours (configurable via `TOKEN_MAXAGE`) |
-| `Refresh` | Token used to obtain a new Auth token | Extended lifetime |
-| `PasswordReset` | Single-use token for password reset flows | Short-lived |
-| `AccountConfirm` | Token for email verification | Extended lifetime |
+| `Auth` | Standard access token | 15 minutes (configurable via `ACCESS_TOKEN_MAXAGE`) |
+| `Refresh` | Token used to obtain a new Auth token | 7 days (configurable via `REFRESH_TOKEN_MAXAGE`) |
+| `PasswordReset` | Single-use token for password reset flows | 24 hours |
+| `AccountConfirm` | Token for email verification | 24 hours |
 
 ## Passing Authentication
 
@@ -43,7 +46,7 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
 ```
 
 !!! warning
-    The two health endpoints (`GET /` and `GET /health-check`) do **not** require authentication. All other endpoints return `401 Unauthorized` if the token is missing, expired, or blacklisted.
+    The two health endpoints (`GET /` and `GET /health-check`) do **not** require authentication. All other endpoints return `401 Unauthorized` if the token is missing, expired, or revoked.
 
 ## Permission System
 
@@ -73,7 +76,7 @@ sequenceDiagram
 
     Client->>Axum: POST /accounts/create (Bearer token)
     Axum->>CtxMW: Extract & decode JWT
-    CtxMW->>CtxMW: Check blacklist
+    CtxMW->>CtxMW: Validate version claims (mem_ver/acc_ver/sid)
     CtxMW->>Handler: CoreCtx (account_id, workspace, perms)
     Handler->>Svc: account_service.create(ctx, params)
     Svc->>AuthV: validate_ctx_perms(ctx, "account:create")
@@ -122,21 +125,24 @@ The system defines these permission constants that services require for CRUD ope
 | Credential | `credential:manageSelf` | Manage own credentials |
 | Credential | `credential:resetAny` | Reset any credential |
 | Token | `token:revokeSelf` | Revoke own tokens |
-| Token | `token:revokeAny` | Revoke any token |
 
-## Token Blacklisting
+## Token Revocation
 
-Tokens can be revoked by blacklisting their SHA-256 hash. The blacklist is checked on every request by the `CtxMiddleware`.
+Token revocation is **session-version-based**. There is no blacklist database, no JWT hash table, and no `/auth/blacklist` endpoint — revocation is purely version/cache based.
 
-Blacklisted token entries include:
+Every token carries `mem_ver` and `acc_ver` claims (the membership and account token versions) plus a `sid` (session ID) for session-bound tokens. On every authenticated request, the `CtxMiddleware` loads the cached auth data for the membership, account, and session, then validates the token against it:
 
-- The SHA-256 hash of the JWT
-- The owning account
-- The workspace
-- Expiration time
-- An optional reason
+- `claims.mem_ver` must match the cached membership token version
+- `claims.acc_ver` must match the cached account token version
+- `claims.sid` must match the cached session (if the cached entity carries a session)
 
-See the [Auth API](api/auth.md) for token revocation endpoints (`POST /auth/revoke`, `POST /auth/blacklist`).
+If any of these mismatch, the token fails validation with `401 Unauthorized`. There is no blacklist lookup — the version comparison **is** the revocation check.
+
+### Revoking a Token
+
+Revocation is performed via `POST /auth/revoke` (documented in the [Auth API](api/auth.md)). The handler decodes the bearer token to recover its claims, verifies the caller owns the token, then increments the session version and purges the membership/account auth-cache keys from Redis. **No hash computation and no database write are involved.**
+
+When a token is revoked, the session version is incremented and the auth cache is purged. All subsequent requests with the previously-issued tokens fail validation because their cached version claims no longer match.
 
 ## Workspace Scoping
 
@@ -163,11 +169,11 @@ Global (root) tokens operate across all workspaces. Because the token itself doe
 **Behavior:**
 
 - If the token is **global/root scoped** and the `X-Workspace-Id` header is **present**, the middleware overrides the scoped workspace with the provided UUID.
-- If the token is **global/root scoped** and the `X-Workspace-Id` header is **missing**, the API returns `400 Bad Request`:
+- If the token is **global/root scoped** and the `X-Workspace-Id` header is **missing**, the API returns `401 Unauthorized`:
   ```json
   {
     "success": false,
-    "status": 400,
+    "status": 401,
     "message": "X-Workspace-Id header required for global-scope tokens"
   }
   ```

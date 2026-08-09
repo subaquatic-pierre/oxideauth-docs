@@ -11,7 +11,7 @@ A workspace is a self-contained tenant that owns all its resources:
 - Roles
 - Permissions
 - Credentials
-- Token blacklist entries
+- Token session data
 
 ## Tenant Isolation
 

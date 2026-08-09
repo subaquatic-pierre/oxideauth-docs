@@ -136,8 +136,7 @@ User's permissions:
 │   ├── credential:manageSelf
 │   └── credential:resetAny
 └── token:*
-    ├── token:revokeSelf
-    └── token:revokeAny
+    └── token:revokeSelf
 ```
 
 ## Best Practices

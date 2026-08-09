@@ -6,6 +6,16 @@ Authentication endpoints for local email/password login, Google OAuth2, token ma
 
 **Protected endpoints** (Bearer token required): Refresh Token, Revoke Token.
 
+**Error responses:** All errors return a flat JSON body — there is no `code` field and no nested `error` object:
+
+```json
+{
+  "success": false,
+  "status": 400,
+  "message": "..."
+}
+```
+
 ---
 
 ## Register
@@ -19,7 +29,7 @@ Creates a new local account with email and password. Returns a JWT token and the
 | Field | Type | Required | Description |
 |-------|------|:--------:|-------------|
 | `email` | string | Yes | Unique email address |
-| `password` | string | Yes | Account password (non-empty) |
+| `password` | string | No | Account password (optional — omit for OAuth-created accounts) |
 | `name` | string | No | Display name |
 
 ### Example Request
@@ -54,11 +64,11 @@ Creates a new local account with email and password. Returns a JWT token and the
 
 ### Possible Errors
 
-| Status | Code | Description |
-|:------:|------|-------------|
-| 400 | `EMAIL_EXISTS` | An account with this email already exists |
-| 400 | `EMPTY_PASSWORD` | Password cannot be empty |
-| 400 | `INVALID_EMAIL` | Email format is invalid |
+| Status | Message |
+|:------:|---------|
+| 400 | `email already exists` | An account with this email already exists |
+| 400 | `email required` / `password required` | Missing required field(s) |
+| 400 | `Malformed JSON syntax.` / `Invalid JSON structure.` | Malformed or invalid request body |
 
 ---
 
@@ -106,12 +116,11 @@ Authenticates with email and password credentials. Returns a JWT token (60-minut
 
 ### Possible Errors
 
-| Status | Code | Description |
-|:------:|------|-------------|
-| 401 | `INVALID_CREDENTIALS` | Wrong email or password |
-| 401 | `ACCOUNT_LOCKED` | Rate limit hit — 5 failed attempts triggers 15-min lockout |
-| 401 | `ACCOUNT_DISABLED` | Account has been disabled |
-| 400 | `OAUTH_ONLY` | Account was created via OAuth (use Google login or reset password) |
+| Status | Message |
+|:------:|---------|
+| 401 | `invalid credentials` | Wrong email or password |
+| 400 | `email and password required` | Missing required field(s) |
+| 400 | `Malformed JSON syntax.` / `Invalid JSON structure.` | Malformed or invalid request body |
 
 ---
 
@@ -122,6 +131,9 @@ Authenticates with email and password credentials. Returns a JWT token (60-minut
 Exchanges a valid Bearer token for a new JWT with renewed expiry (60 minutes from now). No request body required — the current token in the Authorization header provides identity.
 
 **Auth required:** Bearer token
+
+!!! note "Token Source"
+    The refresh token is extracted from the `Authorization: Bearer <token>` header — it is **not** read from the request body. An empty body `{}` is accepted.
 
 ### Example Request
 
@@ -151,10 +163,9 @@ Content-Type: application/json
 
 ### Possible Errors
 
-| Status | Code | Description |
-|:------:|------|-------------|
-| 401 | `INVALID_TOKEN` | Token is missing, expired, or revoked |
-| 401 | `ACCOUNT_DISABLED` | Account has been disabled |
+| Status | Message |
+|:------:|---------|
+| 401 | `Authentication required or invalid credentials.` | Token is missing, expired, revoked, or not a refresh token |
 
 ---
 
@@ -231,11 +242,11 @@ Sets a new password using a valid password reset token. The token must be of typ
 
 ### Possible Errors
 
-| Status | Code | Description |
-|:------:|------|-------------|
-| 400 | `INVALID_TOKEN` | Token is expired or malformed |
-| 400 | `WRONG_TOKEN_TYPE` | Token is not a PasswordReset token (e.g., using a confirmation token) |
-| 401 | `ACCOUNT_DISABLED` | Account has been disabled |
+| Status | Message |
+|:------:|---------|
+| 401 | `Authentication required or invalid credentials.` | Token is missing, expired, malformed, or not a PasswordReset token |
+| 400 | `password required` | New password is empty or missing |
+| 400 | `Malformed JSON syntax.` / `Invalid JSON structure.` | Malformed or invalid request body |
 
 ---
 
@@ -274,11 +285,10 @@ Verifies a user's email address using a confirmation token generated during regi
 
 ### Possible Errors
 
-| Status | Code | Description |
-|:------:|------|-------------|
-| 400 | `INVALID_TOKEN` | Token is expired or malformed |
-| 400 | `WRONG_TOKEN_TYPE` | Token is not an AccountConfirm token |
-| 400 | `ALREADY_VERIFIED` | Account is already verified |
+| Status | Message |
+|:------:|---------|
+| 401 | `Authentication required or invalid credentials.` | Token is missing, expired, malformed, or not an AccountConfirm token |
+| 400 | `Malformed JSON syntax.` / `Invalid JSON structure.` | Malformed or invalid request body |
 
 ---
 
@@ -316,9 +326,9 @@ Resends the account confirmation email for an unverified account. Silently succe
 
 ### Possible Errors
 
-| Status | Code | Description |
-|:------:|------|-------------|
-| 400 | `ALREADY_VERIFIED` | Account is already verified |
+| Status | Message |
+|:------:|---------|
+| 400 | `Malformed JSON syntax.` / `Invalid JSON structure.` | Malformed or invalid request body |
 
 ---
 
@@ -326,7 +336,7 @@ Resends the account confirmation email for an unverified account. Silently succe
 
 `POST /auth/revoke`
 
-Revokes the current JWT token, rendering it invalid for future requests. The token is blacklisted in Redis with a TTL matching its remaining lifetime and persisted to the database.
+Revokes the current JWT token, rendering it invalid for future requests. The token's session version is incremented and the auth cache is purged. Subsequent requests with the old token fail validation because the version claims no longer match the server-side state.
 
 **Auth required:** Bearer token (the token being revoked)
 
@@ -357,9 +367,9 @@ Content-Type: application/json
 
 ### Possible Errors
 
-| Status | Code | Description |
-|:------:|------|-------------|
-| 401 | `INVALID_TOKEN` | Token is missing, expired, or already revoked |
+| Status | Message |
+|:------:|---------|
+| 401 | `Authentication required or invalid credentials.` | Token is missing, expired, revoked, or already revoked |
 
 ---
 
@@ -417,7 +427,7 @@ Read-only GET endpoint that Google redirects the user to after they complete the
 
 ```http
 HTTP/1.1 302 Found
-Location: http://localhost:5000/dashboard?token=eyJ...
+Location: http://localhost:5000/dashboard?token=eyJ...&refresh_token=eyJ...
 ```
 
 ### Error Redirects

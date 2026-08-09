@@ -40,25 +40,27 @@ Each Client has a **secret** — a cryptographically generated string that authe
 
 ## Lifecycle
 
-Clients follow a simple lifecycle:
+Clients follow a straightforward, operation-driven lifecycle. There is **no enable/disable toggle** — a client cannot be suspended; it is created, updated as needed, and eventually deleted:
 
 ```text
-[Registration] → Active ←→ Inactive → [Deletion]
+[Create] → [Update] → [Delete]
+               │
+        [Regenerate Secret]
 ```
 
-### States
+### Operations
 
-| State | Description | Validate? | Push Updates? |
-|-------|-------------|:---------:|:-------------:|
-| **Active** | Default state after creation. Fully operational. | Yes | Yes |
-| **Inactive** | Disabled via update (`enabled: false`). Suspended. | No (`authorized: false`) | No |
+| Operation | Endpoint | Notes |
+|-----------|----------|-------|
+| **Create** | `POST /clients/create` | Registers a new client in a workspace. The plaintext secret is returned exactly once. |
+| **Update** | `POST /clients/update` | Modifies `name`, `endpoint`, `description`, `tags`, and/or `meta`. All fields are optional. |
+| **Regenerate Secret** | `POST /clients/regenerate-secret` | Rotates the client secret, immediately invalidating the old one. |
+| **Delete** | `POST /clients/delete` | Permanently removes the client. This cannot be undone. |
 
-### Transitions
-
-- **Registration → Active**: A client is active immediately upon creation
-- **Active → Inactive**: Set `enabled: false` via the update endpoint. Existing tokens validated by this client will return `authorized: false`
-- **Inactive → Active**: Set `enabled: true` via the update endpoint. The client resumes normal operation
-- **Any → Deletion**: Delete the client via the delete endpoint. The client is permanently removed and cannot be recovered
+- **Create**: A client becomes operational immediately upon creation. The returned secret must be stored securely, as it is shown only once.
+- **Update**: Any mutable field (`name`, `endpoint`, `description`, `tags`, `meta`) can be changed at any time. There is no `enabled` field and no way to disable a client — it can only be updated or deleted.
+- **Regenerate Secret**: If a secret is compromised, rotate it via the regenerate-secret endpoint. The new secret is returned once and the old secret is invalidated immediately.
+- **Delete**: Permanently removes the client and its associated data. This is the only way to stop a client from operating.
 
 ## Relationship to Workspaces
 
@@ -79,7 +81,7 @@ Each Client belongs to exactly one **Workspace**. This scoping means:
 | **Push notifications** | Not applicable | Receives push updates for cache invalidation |
 | **Workspace scoping** | Can belong to multiple workspaces via memberships | Belongs to exactly one workspace |
 | **Permissions** | Granted via roles and memberships | Uses its own permissions to manage itself (`client:create`, `client:delete`, etc.) |
-| **Lifecycle management** | Create, enable/disable, verify email | Create, enable/disable, regenerate secret |
+| **Lifecycle management** | Create, enable/disable, verify email | Create, update, regenerate secret, delete |
 
 ## Permissions
 

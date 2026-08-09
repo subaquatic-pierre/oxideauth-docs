@@ -8,7 +8,7 @@ Built with [MkDocs](https://www.mkdocs.org/) + [Material for MkDocs](https://squ
 |---------|----------|
 | **Home** | Architecture overview with Mermaid diagrams |
 | **Getting Started** | Setup guide, first API calls, recommended workflow |
-| **API Reference** | 39 endpoints across 9 resources — Health, Workspaces, Accounts, Projects, Roles, Permissions, Memberships, Credentials, Tokens |
+| **API Reference** | 50 endpoints across 11 resources — Health, Auth, Clients, Workspaces, Accounts, Projects, Roles, Permissions, Memberships, Credentials, Validate |
 | **Concepts** | Multi-tenancy & workspaces, RBAC & permissions, membership model |
 | **Architecture** | Design docs — request flow, entities, auth flow, login, token architecture, service factory, store module, SQLx vs Diesel, embedded worker, and more |
 
@@ -47,6 +47,19 @@ Or with the scripts directly:
 ./scripts/build.sh      # static site → site/
 ```
 
+### Option 3: Project virtualenv
+
+A project virtualenv is committed at `.venv/` in this directory. Use it directly if you don't want to install into your global environment:
+
+```sh
+# From the docs/ directory
+.venv/bin/python3 -m pip install -r requirements.txt
+.venv/bin/python3 -m mkdocs serve      # live-reload at http://localhost:7000
+.venv/bin/python3 -m mkdocs build --strict   # static site → site/
+```
+
+The `--strict` flag treats warnings as errors and is recommended for production builds.
+
 ## Development Workflow
 
 ### Editing docs
@@ -67,6 +80,12 @@ Or with the scripts directly:
 ```sh
 make build
 # Static site output → site/
+```
+
+Or with the virtualenv for a strict build that fails on warnings:
+
+```sh
+.venv/bin/python3 -m mkdocs build --strict
 ```
 
 The built site is git-ignored — it is regenerated in CI/CD or before deployment.
@@ -118,13 +137,33 @@ docs/
 │   ├── serve.sh
 │   └── build.sh
 ├── Dockerfile              # Docker image for compose
+├── assets/                 # Branding assets
+│   ├── favicon.ico         # Browser tab icon (wired via theme.favicon in mkdocs.yml)
+│   ├── logo.png            # Header/sidebar logo (wired via theme.logo in mkdocs.yml)
+│   └── logoIconText.png    # Logo with wordmark
 ├── docs/                   # All markdown source
 │   ├── index.md
 │   ├── getting-started.md
 │   ├── authentication.md
 │   ├── response-envelope.md
-│   ├── api/                # API reference (9 resources)
+│   ├── api/                # API reference (11 resources)
 │   ├── concepts/           # Concept deep-dives
 │   └── architecture/       # Architecture & design docs
 └── site/                   # Built output (gitignored)
 ```
+
+## Branding
+
+The site branding is configured in `mkdocs.yml` under `theme:`:
+
+```yaml
+theme:
+  favicon: assets/favicon.ico
+  logo: assets/logo.png
+```
+
+To change branding:
+
+1. Replace the files in `assets/` (`favicon.ico`, `logo.png`, `logoIconText.png`)
+2. The Material theme resolves `favicon`/`logo` relative to the MkDocs source dir; `docs/assets/` is symlinked into the source tree so the files are copied to `site/assets/` automatically on build
+3. Rebuild and verify with `make build`

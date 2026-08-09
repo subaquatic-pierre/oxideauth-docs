@@ -6,7 +6,7 @@ This guide walks you through setting up and making your first OxideAuth API call
 
 - **OxideAuth server** running (see project README for build/run instructions)
 - **PostgreSQL 16** with the OxideAuth schema applied
-- **Redis 7** for caching and token blacklisting
+- **Redis 7** for caching and token revocation
 - A tool for making HTTP requests (cURL, Postman, or any HTTP client)
 
 ## Base URL
@@ -107,6 +107,13 @@ Almost all endpoints use **POST** with a JSON body — even read operations. Onl
 ### Content-Type
 
 All request bodies must use `Content-Type: application/json`.
+
+### Empty Request Body
+
+List endpoints (`/accounts/list`, `/projects/list`, `/clients/list`, etc.) accept an empty body `{}` — this applies no filters and uses default list options (limit=100, newest first). Create, update, and delete endpoints require their mandatory fields and will return validation errors when sent an empty body.
+
+!!! warning
+    An empty body `{}` is valid **only** for list endpoints. Non-list endpoints (create, describe, update, delete, and auth operations with required fields) will reject it with a validation error.
 
 ### Authentication
 

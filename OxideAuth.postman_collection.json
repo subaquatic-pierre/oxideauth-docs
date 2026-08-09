@@ -2,10 +2,26 @@
   "info": {
     "_postman_id": "oxideauth-v2-2026",
     "name": "OxideAuth",
-    "description": "Postman collection for the OxideAuth IAM API.\n\nAll endpoints return a standard JSON envelope:\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": { ... }\n}\n```\n\n## Quick Start\n1. Set the `host` variable to your API base URL (default: http://127.0.0.1:8000)\n2. Set the `owner_email` and `owner_password` variables to your bootstrap credentials\n3. Run the **Auth > Login** request and copy the returned `token` into the `token` variable\n4. Set a valid `workspace_id` to use across entity endpoints\n5. When using a **global-scope token**, enable the `X-Workspace-Id` header on entity requests (see Workspace Scoping below)\n\n## Workspace Scoping\n\nOxideAuth supports two token scopes:\n\n- **Workspace-scoped tokens** are bound to a single workspace. Requests operate on that workspace automatically; the `X-Workspace-Id` header is ignored.\n- **Global-scope tokens** are not bound to any workspace. To target a workspace, send the `X-Workspace-Id` header with the workspace id on every entity request.\n\nEntity requests (clients, accounts, projects, roles, permissions, memberships, credentials) include a pre-defined `X-Workspace-Id` header:\n\n```\nX-Workspace-Id: {{workspace_id}}\n```\n\nThe header is **disabled by default** so requests work out of the box with workspace-scoped tokens. When using a global-scope token, enable the header (Postman: checkbox in the Headers tab) and set `workspace_id` to the target workspace. It is ignored for workspace-scoped tokens.\n\nWorkspace endpoints (Create/Describe/List/Update/Delete Workspace) do **not** use the header — the target workspace is identified in the request body (`id` or `slug`) instead.\n\n## Auth Flow\n| Step | Request | Result |\n|------|---------|--------|\n| 1 | Auth > Login | Obtains `token` |\n| 2 | Auth > Refresh Token | Renews `token` before expiry |\n| 3 | Auth > Revoke Token | Invalidates `token` (logout) |\n\n## Auth Variables\n| Variable | Source | Description |\n|----------|--------|-------------|\n| `token` | Manual (copy from Login response) | JWT Bearer token for all authenticated requests |\n| `owner_email` | User-provided | Bootstrap account email (default: user@email.com) |\n| `owner_password` | User-provided | Bootstrap account password (default: password) |\n| `reset_token` | Manual (from email or server log) | Password reset JWT |\n| `confirm_token` | Manual (from email or server log) | Account confirmation JWT |\n| `oauth_code` | Manual (from browser redirect) | Google OAuth authorization code |\n| `oauth_state` | Manual (from Auth Initiate response) | Google OAuth CSRF state |\n| `workspace_id` | Manual (from Workspace > Create Workspace) | Target workspace id for entity requests; sent via the `X-Workspace-Id` header when using global-scope tokens |",
+    "description": "Postman collection for the OxideAuth IAM API.\n\nAll endpoints return a standard JSON envelope:\n```json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": { ... }\n}\n```\n\n## Quick Start\n1. Set the `host` variable to your API base URL (default: http://127.0.0.1:8000)\n2. Set the `owner_email` and `owner_password` variables to your bootstrap credentials\n3. Run the **Auth > Login** request and copy the returned `token` into the `token` variable\n4. Set a valid `workspace_id` to use across entity endpoints\n5. Set a valid `workspace_id` — a collection pre-request script automatically injects the `X-Workspace-Id` header on entity requests (see Automatic Header Injection below)\n\n## Workspace Scoping\n\nOxideAuth supports two token scopes:\n\n- **Workspace-scoped tokens** are bound to a single workspace. Requests operate on that workspace automatically; the `X-Workspace-Id` header is ignored.\n- **Global-scope tokens** are not bound to any workspace. To target a workspace, send the `X-Workspace-Id` header with the workspace id on every entity request.\n\nEntity requests (clients, accounts, projects, roles, permissions, memberships, credentials) include a pre-defined `X-Workspace-Id` header:\n\n```\nX-Workspace-Id: {{workspace_id}}\n```\n\nThe header is **disabled by default** so requests work out of the box with workspace-scoped tokens. When using a global-scope token, set the `workspace_id` variable — the pre-request script injects the header automatically (see Automatic Header Injection below). It is ignored for workspace-scoped tokens.\n\nWorkspace endpoints (Create/Describe/List/Update/Delete Workspace) do **not** use the header — the target workspace is identified in the request body (`id` or `slug`) instead.\n\n## Automatic Header Injection (Pre-Request Script)\n\nA collection-level **pre-request script** automatically injects the `X-Workspace-Id` header before every request. When the `workspace_id` collection variable is set (non-empty), the script adds or updates the header via `pm.request.headers.upsert`. If `workspace_id` is empty or missing, the script returns early and no header is injected.\n\n**Skip logic** — the header is NOT injected for the following paths:\n\n- `/health-check` and the root index `/`\n- Auth endpoints: `/auth/register`, `/auth/login`, `/auth/reset-password`, `/auth/update-password`, `/auth/confirm`, `/auth/resend-confirm`, and all paths under `/auth/oauth/`\n- All workspace endpoints (paths under `/workspace`) — the target workspace is identified in the request body (`id` or `slug`) instead\n- `/clients/validate` — authenticated via `client_secret` in the request body\n\n## Filtering List Endpoints\n\nAll list endpoints (List Accounts, List Clients, List Workspaces, List Projects, List Roles, List Permissions, List Memberships, List Credentials) accept an optional `filter` object:\n\n- `filter.tags`: `string[]` — entities must carry all listed tags\n- `filter.fields`: `object` — exact-match filters on entity fields (e.g. `{\"email\": \"alice@example.com\"}`)\n\n`filter.tags` and `filter.fields` **can be combined** — both filters are applied together with AND logic.\n\nFor a no-filter query, send an empty body `{}` — the endpoint returns all entities in the current workspace using pagination defaults.\n\n## Auth Flow\n| Step | Request | Result |\n|------|---------|--------|\n| 1 | Auth > Login | Obtains `token` |\n| 2 | Auth > Refresh Token | Renews `token` before expiry |\n| 3 | Auth > Revoke Token | Invalidates `token` (logout) |\n\n## Auth Variables\n| Variable | Source | Description |\n|----------|--------|-------------|\n| `token` | Manual (copy from Login response) | JWT Bearer token for all authenticated requests |\n| `owner_email` | User-provided | Bootstrap account email (default: user@email.com) |\n| `owner_password` | User-provided | Bootstrap account password (default: password) |\n| `reset_token` | Manual (from email or server log) | Password reset JWT |\n| `confirm_token` | Manual (from email or server log) | Account confirmation JWT |\n| `oauth_code` | Manual (from browser redirect) | Google OAuth authorization code |\n| `oauth_state` | Manual (from Auth Initiate response) | Google OAuth CSRF state |\n| `workspace_id` | Manual (from Workspace > Create Workspace) | Target workspace id for entity requests; sent via the `X-Workspace-Id` header when using global-scope tokens |",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "oxideauth"
   },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "const wsId = pm.collectionVariables.get(\"workspace_id\");",
+          "if (!wsId || wsId.trim() === \"\") { return; }",
+          "const path = pm.request.url.getPath();",
+          "const skipPatterns = [\"/health-check\", \"/auth/register\", \"/auth/login\", \"/auth/reset-password\", \"/auth/update-password\", \"/auth/confirm\", \"/auth/resend-confirm\", \"/auth/oauth/\", \"/workspace\", \"/clients/validate\"];",
+          "if (skipPatterns.some(p => path.includes(p))) { return; }",
+          "pm.request.headers.upsert({ key: \"X-Workspace-Id\", value: wsId });"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
   "item": [
     {
       "name": "Health",
@@ -480,7 +496,7 @@
               "host": ["{{host}}"],
               "path": ["clients", "list"]
             },
-            "description": "### List Clients\n\nLists all clients within a workspace with optional filtering and pagination.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| filter | object | No | Filter with tags and fields |\n| options | object | No | Pagination with limit, offset, order_bys |\n\n#### Filter Fields\n- id: UUID\n- name: string\n- description: string\n- enabled: boolean\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"clients\": [...],\n    \"metadata\": { ... }\n  }\n}\n```"
+            "description": "### List Clients\n\nLists all clients within a workspace with optional filtering and pagination.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| filter | object | No | Filter with tags and fields |\n| options | object | No | Pagination with limit, offset, order_bys |\n\n#### Filter Fields\n- id: UUID\n- name: string\n- description: string\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"clients\": [...],\n    \"metadata\": { ... }\n  }\n}\n```"
           },
           "response": []
         },
@@ -513,7 +529,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"id\": \"{{client_id}}\",\n    \"name\": \"Payment Service v2\",\n    \"endpoint\": \"https://payments.example.com/v2/oxideauth/updates\",\n    \"enabled\": true\n}",
+              "raw": "{\n    \"id\": \"{{client_id}}\",\n    \"name\": \"Payment Service v2\",\n    \"endpoint\": \"https://payments.example.com/v2/oxideauth/updates\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -525,7 +541,7 @@
               "host": ["{{host}}"],
               "path": ["clients", "update"]
             },
-            "description": "### Update Client\n\nUpdates client fields. All fields except id are optional.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | Client ID to update |\n| name | string | No | New display name |\n| endpoint | string | No | New update endpoint URL |\n| description | string | No | New description |\n| tags | string[] | No | Replacement tags |\n| meta | object | No | New metadata |\n| enabled | bool | No | Enable/disable the client |\n\n#### Response\n\nReturns the updated Client object."
+            "description": "### Update Client\n\nUpdates client fields. All fields except id are optional.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | Client ID to update |\n| name | string | No | New display name |\n| endpoint | string | No | New update endpoint URL |\n| description | string | No | New description |\n| tags | string[] | No | Replacement tags |\n| meta | object | No | New metadata |\n\n#### Response\n\nReturns the updated Client object."
           },
           "response": []
         },
@@ -2236,6 +2252,46 @@
     },
     {
       "key": "credential_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "client_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "owner_email",
+      "value": "user@email.com",
+      "type": "string"
+    },
+    {
+      "key": "owner_password",
+      "value": "password",
+      "type": "string"
+    },
+    {
+      "key": "reset_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "confirm_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "oauth_code",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "oauth_state",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "client_secret",
       "value": "",
       "type": "string"
     }

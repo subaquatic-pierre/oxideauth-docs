@@ -104,9 +104,15 @@ Lists projects within a workspace.
 }
 ```
 
+!!! note "Filter Combination"
+    `filter.tags` and `filter.fields` are combined via **AND** logic — both conditions must match for a record to be returned.
+
+!!! tip "Empty Body"
+    Sending an empty body `{}` is valid — no filters are applied and default list options are used (limit=100, newest first).
+
 ### Filter Fields (`filter.fields`)
 
-`id`, `workspace_id`, `name`, `code`, `description`
+`id`, `workspace_id`, `name`, `code`, `description`, `created_by`
 
 ### Response
 

@@ -8,7 +8,7 @@ OxideAuth is a multi-tenant IAM (Identity & Access Management) REST API built in
 
 - **Multi-Tenancy** — Workspaces isolate users, projects, and permissions
 - **RBAC** — Fine-grained role and permission system with wildcard support (`account:*`, `*:read`)
-- **JWT Authentication** — HS256-signed tokens with blacklisting and refresh support
+- **JWT Authentication** — HS256-signed tokens with revocation and refresh support
 - **OAuth2 / OIDC** — Google OAuth integration for social login
 - **Credential Management** — Password, OAuth, SSO, and API key credential types
 - **Token Revocation** — Blacklist tokens by SHA-256 hash with expiry tracking

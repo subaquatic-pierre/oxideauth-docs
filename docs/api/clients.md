@@ -5,7 +5,7 @@ Client registration and management for external microservices that integrate wit
 !!! note "Not OAuth2/OIDC Clients"
     The **Clients** resource is for registering external microservices that need to validate user tokens and receive push notifications. This is distinct from OAuth2 or OIDC clients, which would be a separate concept if introduced in the future.
 
-**All endpoints require** `Authorization: Bearer <token>`.
+**All endpoints (except Validate, which uses `client_secret` authentication — see [Validate Token](validate.md)) require** `Authorization: Bearer <token>`.
 
 ---
 
@@ -22,8 +22,8 @@ Creates a new client within a workspace. The client secret is returned once — 
   "name": "Payment Service",                             // string (required) - Human-readable name for the client
   "endpoint": "https://payments.example.com/oxideauth/updates",   // string (optional) - Update endpoint URL that OxideAuth calls to push cache invalidation events
   "description": "Handles payment processing",           // string (optional) - Optional description
-  "tags": ["payments", "production"],                    // string[] (optional) - Categorization tags
-  "meta": {                                              // object (optional) - Extensible metadata
+  "tags": ["payments", "production"],                    // string[] (required) - Categorization tags
+  "meta": {                                              // object (required) - Extensible metadata
     "schema_version": "1.0"                              // string (required) - Metadata schema version
   }
 }
@@ -53,7 +53,8 @@ Returns the created Client object. The `secret` field is **only returned on crea
   "description": "Handles payment processing",       // string? - Description
   "tags": ["payments", "production"],                // string[] - Tags
   "meta": { "schema_version": "1.0" },               // object - Metadata
-  "created_at": "2024-01-15T10:30:00Z"               // RFC 3339 - Creation timestamp
+  "created_at": "2024-01-15T10:30:00Z",              // RFC 3339 - Creation timestamp
+  "updated_at": null                                 // RFC 3339? - Last update timestamp (null for newly created resources)
 }
 ```
 
@@ -88,7 +89,6 @@ Returns the Client object. The secret is **never included** in describe response
   "description": "Handles payment processing",       // string? - Description
   "tags": ["payments", "production"],                // string[] - Tags
   "meta": { "schema_version": "1.0" },               // object - Metadata
-  "enabled": true,                                   // boolean - Whether the client is active
   "created_at": "2024-01-15T10:30:00Z",              // RFC 3339 - Creation timestamp
   "updated_at": "2024-02-01T09:00:00Z"               // RFC 3339? - Last update timestamp
 }
@@ -108,7 +108,7 @@ Lists all clients within a workspace with optional filtering and pagination.
 {
   "filter": {                                        // object (optional) - Filter parameters
     "tags": [],                                      // string[] (optional) - Filter by tags
-    "fields": {}                                     // object (optional) - Filter by field values (`id`, `name`, `description`, `enabled`)
+    "fields": {}                                     // object (optional) - Filter by field values (`id`, `workspace_id`, `name`, `description`)
   },
   "options": {                                       // object (optional) - Pagination options
     "limit": 10,                                     // integer (optional) - Page size
@@ -117,6 +117,12 @@ Lists all clients within a workspace with optional filtering and pagination.
   }
 }
 ```
+
+!!! note "Filter Combination"
+    `filter.tags` and `filter.fields` are combined via **AND** logic — both conditions must match for a record to be returned.
+
+!!! tip "Empty Body"
+    Sending an empty body `{}` is valid — no filters are applied and default list options are used (limit=100, newest first).
 
 ### Response
 
@@ -154,8 +160,7 @@ Updates a client's fields. All fields except `id` are optional — only include 
   "endpoint": "https://payments.example.com/v2/oxideauth/updates",   // string (optional) - New update endpoint URL
   "description": "Handles payment processing",       // string (optional) - New description
   "tags": ["payments", "production"],                // string[] (optional) - Replacement tags
-  "meta": { "schema_version": "1.0" },               // object (optional) - New metadata
-  "enabled": true                                    // boolean (optional) - Enable or disable the client
+  "meta": { "schema_version": "1.0" }                // object (optional) - New metadata
 }
 ```
 
