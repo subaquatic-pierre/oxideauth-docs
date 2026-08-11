@@ -64,15 +64,15 @@ This produces a `CoreCtx` that the service layer uses for authorization.
 
 Permissions support three wildcard patterns:
 
-| Pattern | Example | Description |
-|---------|---------|-------------|
-| `*` | `*` | All permissions on all resources |
+| Pattern      | Example     | Description                        |
+| ------------ | ----------- | ---------------------------------- |
+| `*`          | `*`         | All permissions on all resources   |
 | `resource:*` | `account:*` | All actions on a specific resource |
-| `*:action` | `*:read` | A specific action on all resources |
+| `*:action`   | `*:read`    | A specific action on all resources |
 
 ### Permission Matching
 
-The `PermissionChecker` resolves wildcards hierarchically:
+The `PermissionEngine` resolves wildcards hierarchically:
 
 ```
 Permission required: account:readAny

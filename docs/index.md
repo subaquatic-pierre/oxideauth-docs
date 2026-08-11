@@ -22,7 +22,7 @@ graph TD
     Axum --> Auth[CtxMiddleware]
     Auth -->|Resolves JWT → CoreCtx| Handlers[Route Handlers]
     Handlers --> Services[Service Layer]
-    Services -->|Permission Check| Perms[PermissionChecker]  
+    Services -->|Permission Check| Perms[PermissionEngine]
     Services --> Store[Data Access Layer]
     Store --> PG[(PostgreSQL)]
     Services --> Cache[(Redis)]
@@ -30,17 +30,17 @@ graph TD
 
 ## API at a Glance
 
-| Resource | Endpoints | Description |
-|----------|-----------|-------------|
-| [Health](api/health.md) | 2 | Server liveness & root endpoint |
-| [Auth](api/auth.md) | 11 | Authentication, OAuth2, token & password management |
-| [Workspaces](api/workspace.md) | 5 | Multi-tenant containers |
-| [Accounts](api/accounts.md) | 5 | User identity management |
-| [Projects](api/projects.md) | 5 | Scoped work areas within workspaces |
-| [Roles](api/roles.md) | 5 | Permission bundles |
-| [Permissions](api/permissions.md) | 5 | Fine-grained access control |
-| [Memberships](api/memberships.md) | 5 | Account-to-workspace/project links |
-| [Credentials](api/credentials.md) | 4 | Auth credential lifecycle |
+| Resource                          | Endpoints | Description                                         |
+| --------------------------------- | --------- | --------------------------------------------------- |
+| [Health](api/health.md)           | 2         | Server liveness & root endpoint                     |
+| [Auth](api/auth.md)               | 11        | Authentication, OAuth2, token & password management |
+| [Workspaces](api/workspace.md)    | 5         | Multi-tenant containers                             |
+| [Accounts](api/accounts.md)       | 5         | User identity management                            |
+| [Projects](api/projects.md)       | 5         | Scoped work areas within workspaces                 |
+| [Roles](api/roles.md)             | 5         | Permission bundles                                  |
+| [Permissions](api/permissions.md) | 5         | Fine-grained access control                         |
+| [Memberships](api/memberships.md) | 5         | Account-to-workspace/project links                  |
+| [Credentials](api/credentials.md) | 4         | Auth credential lifecycle                           |
 
 **50 total endpoints** — all JSON POST (except 2 GET health endpoints and 1 GET OAuth callback) with a standard `{ success, status, data }` envelope.
 
