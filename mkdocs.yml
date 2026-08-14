@@ -1,8 +1,8 @@
 site_name: OxideAuth Documentation
 site_description: IAM Platform — Identity & Access Management Documentation
 site_author: OxideAuth Team
-repo_url: https://github.com/oxideauth/oxideauth
-repo_name: oxideauth/oxideauth
+repo_url: https://github.com/subaquatic-pierre/oxideauth
+repo_name: oxideauth
 edit_uri: edit/main/docs/docs/
 
 theme:
