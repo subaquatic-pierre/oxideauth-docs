@@ -54,7 +54,6 @@ When any of the following mutations happen in OxideAuth, the push mechanism is t
 | Event | Service | `type` Value |
 |-------|---------|-------------|
 | Token revoked (logout) | Auth | `token` |
-| Token blacklisted (admin) | Auth | `token` |
 | Permission created | Permission | `permission` |
 | Permission updated | Permission | `permission` |
 | Permission deleted | Permission | `permission` |

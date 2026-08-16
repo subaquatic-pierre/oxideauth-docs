@@ -2,7 +2,7 @@
 
 ## Context
 
-The application requires a mechanism to handle recurring maintenance tasks, specifically the revocation of expired security tokens (Token Blacklist cleanup).
+The application requires a mechanism to handle recurring maintenance tasks, such as purging expired and consumed token metadata (expired refresh-token replay markers and stale cache entries).
 
 ## Options Evaluated
 

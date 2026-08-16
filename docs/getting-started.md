@@ -21,7 +21,7 @@ The port defaults to `8000` (configurable via `PORT` environment variable). The 
 
 ## Import the Postman Collection
 
-We provide a ready-to-use Postman collection with all 50 endpoints, example payloads, and auto-populated variables:
+We provide a ready-to-use Postman collection with all 62 endpoints, example payloads, and auto-populated variables:
 
 1. Download the [Postman collection](https://github.com/subaquatic-pierre/oxideauth/blob/main/references/OxideAuth.postman_collection.json) from the repository
 2. In Postman, click **Import** → select the downloaded file

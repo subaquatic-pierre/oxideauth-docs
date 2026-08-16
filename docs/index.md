@@ -11,7 +11,7 @@ OxideAuth is a multi-tenant IAM (Identity & Access Management) REST API built in
 - **JWT Authentication** — HS256-signed tokens with revocation and refresh support
 - **OAuth2 / OIDC** — Google OAuth integration for social login
 - **Credential Management** — Password, OAuth, SSO, and API key credential types
-- **Token Revocation** — Blacklist tokens by SHA-256 hash with expiry tracking
+- **Token Revocation** — Version-based invalidation via membership/account/session version claims
 - **Email** — AWS SES integration with Tera HTML templates
 
 ## Architecture Overview
@@ -32,17 +32,20 @@ graph TD
 
 | Resource                          | Endpoints | Description                                         |
 | --------------------------------- | --------- | --------------------------------------------------- |
-| [Health](api/health.md)           | 2         | Server liveness & root endpoint                     |
-| [Auth](api/auth.md)               | 11        | Authentication, OAuth2, token & password management |
-| [Workspaces](api/workspace.md)    | 5         | Multi-tenant containers                             |
-| [Accounts](api/accounts.md)       | 5         | User identity management                            |
-| [Projects](api/projects.md)       | 5         | Scoped work areas within workspaces                 |
-| [Roles](api/roles.md)             | 5         | Permission bundles                                  |
-| [Permissions](api/permissions.md) | 5         | Fine-grained access control                         |
-| [Memberships](api/memberships.md) | 5         | Account-to-workspace/project links                  |
-| [Credentials](api/credentials.md) | 4         | Auth credential lifecycle                           |
+| [Health](api/health.md) | 2 | Server liveness & root endpoint |
+| [Auth](api/auth.md) | 10 | Authentication, OAuth2, token & password management |
+| [Workspaces](api/workspace.md) | 5 | Multi-tenant containers |
+| [Accounts](api/accounts.md) | 5 | User identity management |
+| [Projects](api/projects.md) | 5 | Scoped work areas within workspaces |
+| [Profiles](api/profiles.md) | 4 | Workspace-scoped identities |
+| [Clients](api/clients.md) | 7 | Service clients & token validation |
+| [Roles](api/roles.md) | 5 | Permission & policy bundles |
+| [Permissions](api/permissions.md) | 5 | Fine-grained access control |
+| [Policies](api/policies.md) | 5 | Allow/deny authorization rules |
+| [Memberships](api/memberships.md) | 5 | Account-to-workspace/project links |
+| [Credentials](api/credentials.md) | 4 | Auth credential lifecycle |
 
-**50 total endpoints** — all JSON POST (except 2 GET health endpoints and 1 GET OAuth callback) with a standard `{ success, status, data }` envelope.
+**62 total endpoints** — all JSON POST (except 2 GET health endpoints and 1 GET OAuth callback) with a standard `{ success, status, data }` envelope.
 
 ## Data Model
 
@@ -57,7 +60,12 @@ erDiagram
     Membership }o--|| Project : scoped_to
     Membership }o--o{ Role : assigned
     Role }o--o{ Permission : bundles
-    Account ||--o{ Token : has_revoked
+    Workspace ||--o{ Profile : has
+    Account ||--o{ Profile : has
+    Membership }o--|| Profile : references
+    Workspace ||--o{ Policy : defines
+    Role }o--o{ Policy : bundles
+    Membership }o--o{ Policy : attaches
 ```
 
 ## Quick Links

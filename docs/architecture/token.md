@@ -1,87 +1,80 @@
-# Token Architecture & Security Documentation
+# Token Architecture
 
-## 1. Philosophical Overview: Stateless JWT Auth
+Tokens are the core authentication primitive in OxideAuth. This page describes how tokens are issued, validated, and revoked, and why revocation is **version-based** rather than storage-based.
 
-The system utilizes **Stateless JWTs** (JSON Web Tokens) for request authentication. Unlike traditional session-based systems, the server does not "look up" a session for every request. It trusts the token based on its cryptographic signature.
+## 1. Stateless JWT Auth
 
-### The Revocation Problem
+OxideAuth uses **HS256-signed JSON Web Tokens (JWTs)** for request authentication. The server trusts a token based on its cryptographic signature — there is no per-request session lookup and no database read to validate the token itself.
 
-In a stateless system, tokens are valid until they expire ($exp$). To allow for manual logout or security lockouts, we implement a **Blacklist Pattern** rather than a **Whitelist Pattern**.
+Every authenticated request presents the token in the `Authorization: Bearer <jwt>` header. Validation consists of:
 
-| Strategy      | Logic                                   | Performance                       | Standard       |
-| :------------ | :-------------------------------------- | :-------------------------------- | :------------- |
-| **Whitelist** | Only tokens in DB are valid.            | Slow (DB hit every request)       | Legacy/Banking |
-| **Blacklist** | All signed tokens valid unless revoked. | Fast (Check cache for exceptions) | **Modern Web** |
+1. **Signature check** — verify the HMAC-SHA256 signature against the `JWT_SECRET` (CPU only).
+2. **Expiration check** — reject tokens whose `exp` claim is in the past.
+3. **Version check** — validate the token's version/session claims against cached auth data (see [Version-Based Revocation](#4-version-based-revocation)).
 
----
+Because validation is signature-based, authentication is fast and horizontally scalable: any instance holding the shared secret can validate any token.
 
-## 2. Polymorphic Token Storage
+## 2. Token Types
 
-To maintain a lean architecture, all token-related data is consolidated into a single unified table. This allows the `TokenService` to manage diverse lifecycles within one domain.
+| Type             | Purpose                                           | Lifetime                                             |
+| ---------------- | ------------------------------------------------- | ---------------------------------------------------- |
+| `Auth`           | Standard access token sent on every API request   | ~15 minutes (configurable via `ACCESS_TOKEN_MAXAGE`) |
+| `Refresh`        | Long-lived token used to obtain a new `Auth` token | 7 days (configurable via `REFRESH_TOKEN_MAXAGE`)    |
+| `PasswordReset`  | Single-use token for password recovery flows      | Short-lived, single use                              |
+| `AccountConfirm` | Single-use token for email verification           | Short-lived, single use                              |
 
-### Table Discriminators (Token Types)
+Access tokens are short-lived so the window in which a leaked token can be abused stays small. `Refresh` tokens carry a session (`sid`) and a unique `jti` so they can be rotated and their reuse detected. `PasswordReset` and `AccountConfirm` tokens are single-use and are consumed by the flow that validates them.
 
-The `token_type` field distinguishes the behavior and requirements of each entry:
+## 3. Token Claims
 
-- `BLACKLIST`: A `jti` (JWT ID) that has been revoked before its expiration.
-- `REFRESH`: Long-lived tokens used to generate new access tokens.
-- `API_KEY`: Permanent or long-lived tokens for programmatic access.
-- `RESET_PASSWORD`: Short-lived, single-use tokens for recovery flows.
+Every token is a JWT payload carrying the `TokenClaims` structure:
 
----
+| Claim     | Type            | Description                                                        |
+| --------- | --------------- | ------------------------------------------------------------------ |
+| `sub`     | UUID            | Account ID of the authenticated user                               |
+| `ws`      | UUID            | Workspace ID the token is scoped to                                |
+| `mem`     | UUID            | Membership ID for the current session                              |
+| `iss`     | string          | Token issuer                                                       |
+| `aud`     | string          | Token audience                                                     |
+| `exp`     | integer         | Expiration timestamp (Unix epoch)                                  |
+| `iat`     | integer         | Issued-at timestamp (Unix epoch)                                   |
+| `ty`      | string          | Token type (`Auth`, `Refresh`, `PasswordReset`, `AccountConfirm`)  |
+| `mem_ver` | integer         | Membership token version — powers revocation                       |
+| `acc_ver` | integer         | Account token version — powers revocation                          |
+| `sid`     | UUID (optional) | Session ID; `null` for single-use tokens                           |
+| `jti`     | UUID (optional) | JWT ID — unique per token; `null` for single-use tokens            |
 
-## 3. The Blacklist Life-cycle
+`mem_ver`, `acc_ver`, and `sid` are the claims that make revocation possible in a stateless system: they bind the token to a specific version of the membership and account, and to a specific session. `jti` uniquely identifies each token instance and is what makes refresh tokens single-use.
 
-### Revocation (Create)
+## 4. Version-Based Revocation
 
-When a user logs out, the `TokenService` extracts the `jti` and the $exp$ from the current JWT.
+There is **no blacklist, no hash table, and no database write** involved in revocation. Instead, revocation is a *version comparison* between the token's claims and the current cached auth state.
 
-1. A record is created in the `TokenStore` with type `BLACKLIST`.
-2. The `jti` is added to the `CacheManager` with a TTL equal to the remaining life of the token.
+On every authenticated request, the `CtxMiddleware`:
 
-### Validation (Describe/Check)
+1. Decodes the JWT and reads `mem_ver`, `acc_ver`, and `sid`.
+2. Loads the cached auth data (membership version, account version, session) from Redis.
+3. Compares the claims against it:
+   - `claims.mem_ver` must equal the cached **membership version**
+   - `claims.acc_ver` must equal the cached **account version**
+   - `claims.sid` must match the cached **session** (when the cached entity carries a session)
 
-For every incoming request, the Auth Middleware performs:
+If any comparison fails, the request is rejected with `401 Unauthorized` ("token revoked"). The version comparison **is** the revocation check — there is no lookup of revoked tokens anywhere.
 
-1. **Signature Check**: Is the JWT valid? (CPU only).
-2. **Cache Check**: Is the key `bl:{jti}` in Redis? (Memory speed).
-3. **Database Fallback**: If the cache is cold, check the `TokenStore` where `type = BLACKLIST`.
+### Revoking a Token
 
----
+`POST /auth/revoke` (the `revoke_token` service) decodes the bearer token to recover its claims, verifies the caller holds the `auth:revoke` permission, then **bumps the membership version** and **purges the membership/account auth-cache keys**. No hash is computed and no database row is written.
 
-## 4. Resiliency & Cache Restoration
+As soon as the version bumps, every previously-issued token carrying the old `mem_ver`/`acc_ver` fails validation on its next request. All tokens for that membership/account are revoked **immediately**, with no per-token state to store or sweep.
 
-Since the Cache (Redis) is volatile memory, it is not treated as the "System of Record." The Database is the source of truth.
+## 5. Refresh-Token Single Use
 
-### Eager Restoration (Hydration)
+`Refresh` tokens are single-use. Each refresh token carries a unique `jti`. On its first use, the refresh service marks it as consumed under the cache key `oxauth:crt:{jti}` (recording the session that used it, with a TTL equal to the token's remaining life).
 
-In the event of a cache wipe or system restart, the `TokenService` provides a `prime_blacklist_cache` method. This method:
-
-1. Queries the `TokenStore` for all `BLACKLIST` entries where `expires_at > NOW()`.
-2. Iteratively restores these entries to the `CacheManager`.
-3. Ensures the system "fails closed" (remains secure) even after a total infrastructure reboot.
-
----
-
-## 5. Technical Implementation Guidelines
-
-### Cache Key Namespacing
-
-To avoid collisions in the unified table, the `CacheManager` must use prefixes:
-
-- `bl:{jti}` -> Blacklist entries.
-- `ref:{id}` -> Refresh token metadata.
-
-### Automatic Pruning
-
-A background "Janitor" task should run periodically (e.g., every 6 hours) to delete expired rows from the `TokenStore` across all types:
-
-```sql
-DELETE FROM token WHERE expires_at < NOW();
-```
+Any subsequent presentation of the same `jti` is detected as a **replay**: the session is treated as compromised, the membership version is bumped (invalidating every outstanding token for that session), and the auth cache is purged.
 
 ## 6. Security Trade-offs
 
-1. **Fail-Open Strategy**: If both Cache and Database are unreachable, the system trusts the JWT signature. This ensures high availability.
-
-2. **Window of Risk**: The window of risk is limited by the Access Token Lifetime (recommended 5-15 minutes). Even if revocation fails, the token expires shortly regardless.
+- **Fail-open on signature trust** — tokens are accepted on the strength of the signature alone: no session lookup, no per-request database hit. This keeps authentication fast and stateless.
+- **Fail-closed on cache cold** — the version comparison is strict. A token whose version/session claims do not match the current cached auth data is rejected with `401`. On a cache miss the auth data is re-hydrated from the database, so revocation state is never silently lost.
+- **Window of risk** — because access tokens live only ~15 minutes, the window in which a revoked-but-unexpired token could be presented is bounded by the access-token lifetime. Version-based revocation collapses that window to effectively zero in normal operation, and the short lifetime bounds the worst case.
