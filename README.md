@@ -165,5 +165,5 @@ theme:
 To change branding:
 
 1. Replace the files in `assets/` (`favicon.ico`, `logo.png`, `logoIconText.png`)
-2. The Material theme resolves `favicon`/`logo` relative to the MkDocs source dir; `docs/assets/` is symlinked into the source tree so the files are copied to `site/assets/` automatically on build
+2. The Material theme copies them from the docs source (`docs/assets/`) into the built site automatically
 3. Rebuild and verify with `make build`

@@ -1,6 +1,6 @@
 # Membership API
 
-Memberships link [accounts](accounts.md) to workspaces or projects, assigning [roles](roles.md) that grant permissions.
+Memberships link [accounts](accounts.md) to workspaces or projects, assigning [roles](roles.md) and [policies](policies.md) that grant access. Each membership references a [profile](../concepts/identity-model.md) (the workspace-facing identity of the account).
 
 **All endpoints require** `Authorization: Bearer <token>`.
 
@@ -27,17 +27,29 @@ Memberships link [accounts](accounts.md) to workspaces or projects, assigning [r
 
 `POST /memberships/create`
 
-Creates a membership linking an account to a workspace or project.
+Creates a membership linking an account to a workspace or project. `email` is always required and is validated/normalized. `account_id` is optional: when omitted, the API resolves the email to an existing account or creates a new one; when provided, the account is resolved by id and the supplied email becomes the profile email. `profile` is optional and supplies persona details only when a new profile is created.
 
 ### Request Body
 
 ```json
 {
-  "account_id": "880e8400-e29b-41d4-a716-446655440003",    // UUID (required) - Account to link
+  "email": "member@example.com",                            // string (required) - Onboarding email (validated/normalized)
+  "account_id": "880e8400-e29b-41d4-a716-446655440003",    // UUID (optional) - Existing account to link; when omitted, account is resolved/created by email
+  "profile": {                                              // object (optional) - Persona details applied only when a new profile is created
+    "name": "Member Name",                                    // string (optional) - Persona name
+    "description": "...",                                     // string? (optional) - Optional description
+    "display_name": "...",                                    // string? (optional) - Display name
+    "job_title": "...",                                       // string? (optional) - Job title
+    "timezone": "...",                                        // string? (optional) - IANA timezone
+    "avatar_url": "...",                                      // string? (optional) - Avatar image URL
+    "tags": [],                                               // string[] (optional) - Categorization tags
+    "meta": { "schema_version": "1.0" }                       // object (optional) - Extensible metadata
+  },
   "scope": "workspace",                                     // string (required) - "workspace" or "project"
   "status": "active",                                       // string (required) - "invited", "active", or "suspended"
   "project_id": "990e8400-e29b-41d4-a716-446655440004",     // UUID (optional*) - Project ID (required if scope is "project")
   "role_ids": ["770e8400-e29b-41d4-a716-446655440002"],     // UUID[] (required) - Roles to assign
+  "policy_ids": ["cc0e8400-e29b-41d4-a716-446655440006"],   // UUID[] (required) - Policies to attach
   "tags": ["member"],                                       // string[] (required) - Categorization tags
   "meta": {                                                 // object (required) - Metadata (schema_version required)
     "schema_version": "1.0"                                   // string (required) - Metadata schema version
@@ -45,37 +57,74 @@ Creates a membership linking an account to a workspace or project.
 }
 ```
 
-\* Required when `scope` is `"project"`.
+\* `email` is always required and is validated/normalized. `account_id` is optional; when provided, the account is resolved by id and the supplied email becomes the profile email. `profile` is optional and applies persona details only when a new profile is created. `project_id` is required when `scope` is `"project"`.
 
 ### Project-Scoped Example
 
 ```json
 {
-  "account_id": "880e8400-e29b-41d4-a716-446655440003",
+  "email": "member@example.com",
   "scope": "project",
   "status": "active",
   "project_id": "990e8400-e29b-41d4-a716-446655440004",
   "role_ids": ["770e8400-e29b-41d4-a716-446655440002"],
+  "policy_ids": ["cc0e8400-e29b-41d4-a716-446655440006"],
   "tags": ["contributor"],
+  "meta": { "schema_version": "1.0" }
+}
+```
+
+### New-Profile Example
+
+When the caller wants to supply persona details for the newly created profile, include the optional `profile` object. These fields are applied only when a new profile is created for the membership.
+
+```json
+{
+  "email": "member@example.com",
+  "profile": {
+    "name": "Member Name",
+    "description": "Engineering team member",
+    "display_name": "Member",
+    "job_title": "Engineer",
+    "timezone": "UTC",
+    "avatar_url": null,
+    "tags": ["engineering"],
+    "meta": { "schema_version": "1.0" }
+  },
+  "scope": "workspace",
+  "role_ids": ["770e8400-e29b-41d4-a716-446655440002"],
+  "policy_ids": ["cc0e8400-e29b-41d4-a716-446655440006"],
+  "tags": ["member"],
   "meta": { "schema_version": "1.0" }
 }
 ```
 
 ### Response
 
-Returns the created `Membership` object with nested roles:
+Returns the created `Membership` object with nested roles and resolved policies:
 
 ```json
 {
   "id": "aa0e8400-e29b-41d4-a716-446655440005",              // UUID - Membership identifier
-  "account_id": "880e8400-e29b-41d4-a716-446655440003",      // UUID - Linked account
+  "account_id": "880e8400-e29b-41d4-a716-446655440003",      // UUID - Linked account (opaque outside the system)
   "workspace_id": "550e8400-e29b-41d4-a716-446655440000",    // UUID - Workspace
+  "profile_id": "bb0e8400-e29b-41d4-a716-446655440007",       // UUID? - Linked workspace profile (workspace-visible identity anchor)
   "project_id": "990e8400-e29b-41d4-a716-446655440004",      // UUID? - Project (if project-scoped)
   "scope": "workspace",                                       // string - "workspace" or "project"
   "status": "active",                                         // string - "invited", "active", or "suspended"
   "roles": [                                                  // Role[] - Assigned roles with permissions
     {
       "id": "770e8400-e29b-41d4-a716-446655440002"             // UUID - Role identifier
+    }
+  ],
+  "policies": [                                               // Policy[] - Resolved attached policy objects
+    {
+      "id": "cc0e8400-e29b-41d4-a716-446655440006",            // UUID - Policy identifier
+      "name": "self-update",                                   // string? - Policy name (unique per workspace)
+      "effect": "allow",                                       // string - "allow" or "deny"
+      "actions": ["profile:update"],                           // string[] - Actions the policy allows or denies
+      "resource": "self",                                      // string - "self", "<uuid>", or "*"
+      "constraint": "profile.account.id === user.id"           // string? - Constraint DSL expression
     }
   ],
   "tags": ["member"],                                         // string[] - Tags
@@ -86,6 +135,9 @@ Returns the created `Membership` object with nested roles:
   "updated_at": "2024-01-15T10:30:00Z"                        // RFC 3339? - Last update timestamp
 }
 ```
+
+!!! note "Privacy"
+    Membership responses never include the account email. Each account is keyed by a unique email, but that identity stays opaque outside the system: a workspace sees the linked [profile](../concepts/identity-model.md) (via `profile_id`) and the account id as a UUID only. The profile itself exposes a workspace-facing `email` that may differ from the account email. See [Identity Model](../concepts/identity-model.md) for the Account / Profile / Membership split.
 
 ---
 
@@ -105,7 +157,7 @@ Retrieves a membership by ID.
 
 ### Response
 
-Full `Membership` object with nested roles.
+Full `Membership` object with nested roles and resolved policies.
 
 ---
 
@@ -144,6 +196,7 @@ Lists memberships within a workspace.
 | `id` | UUID | Membership ID |
 | `account_id` | UUID | Account ID |
 | `workspace_id` | UUID | Workspace ID |
+| `profile_id` | UUID | Profile ID |
 | `scope` | string | `"workspace"` or `"project"` |
 | `status` | string | `"invited"`, `"active"`, `"suspended"` |
 | `project_id` | UUID | Project ID |
@@ -177,6 +230,8 @@ Updates membership fields. All fields except `id` are optional.
   "status": "suspended",                                   // string (optional) - "invited", "active", or "suspended"
   "scope": "workspace",                                    // string (optional) - "workspace" or "project"
   "project_id": "990e8400-e29b-41d4-a716-446655440004",   // UUID (optional) - Project ID (for project scope)
+  "role_ids": ["770e8400-e29b-41d4-a716-446655440002"],    // UUID[] (optional) - Replaces assigned roles
+  "policy_ids": ["cc0e8400-e29b-41d4-a716-446655440006"],  // UUID[] (optional) - Replaces attached policies
   "tags": ["member", "suspended"],                         // string[] (optional) - Replacement tags
   "meta": {                                                // object (optional) - New metadata
     "schema_version": "1.0"                                  // string (optional) - Schema version
@@ -186,7 +241,7 @@ Updates membership fields. All fields except `id` are optional.
 
 ### Response
 
-Updated `Membership` object.
+Updated `Membership` object with nested roles and resolved policies.
 
 ---
 

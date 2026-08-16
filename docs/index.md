@@ -66,4 +66,4 @@ erDiagram
 - [Authentication](authentication.md) — Tokens, permissions, and security
 - [Response Envelope](response-envelope.md) — Standard response format
 - [Concepts](concepts/workspaces.md) — Deep dive into architecture concepts
-- [Postman Collection](https://github.com/oxideauth/oxideauth/blob/main/references/OxideAuth.postman_collection.json) — Import-ready test collection
+- [Postman Collection](https://github.com/subaquatic-pierre/oxideauth/blob/main/references/OxideAuth.postman_collection.json) — Import-ready test collection

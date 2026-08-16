@@ -1328,7 +1328,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Admin\",\n    \"description\": \"Full administrative access\",\n    \"permission_ids\": [\n        \"{{permission_id}}\"\n    ],\n    \"tags\": [\"admin\"],\n    \"meta\": {\n        \"schema_version\": \"1.0\"\n    }\n}",
+              "raw": "{\n    \"name\": \"Admin\",\n    \"description\": \"Full administrative access\",\n    \"permission_ids\": [\n        \"{{permission_id}}\"\n    ],\n    \"policy_ids\": [\n        \"{{policy_id}}\"\n    ],\n    \"tags\": [\"admin\"],\n    \"meta\": {\n        \"schema_version\": \"1.0\"\n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1463,7 +1463,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"id\": \"{{role_id}}\",\n    \"name\": \"Super Admin\",\n    \"description\": \"Elevated administrative access\"\n}",
+              "raw": "{\n    \"id\": \"{{role_id}}\",\n    \"name\": \"Super Admin\",\n    \"description\": \"Elevated administrative access\",\n    \"policy_ids\": [\n        \"{{policy_id}}\"\n    ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1758,6 +1758,423 @@
       ]
     },
     {
+      "name": "Profiles",
+      "description": "Workspace-facing profile management. Profiles are the workspace-scoped identity for a person, distinct from the system-wide Account. Each person has exactly one profile per workspace, and memberships reference profiles to grant access. The profile `email` is unique within a workspace (case-insensitive).\n\n**Auth required:** Bearer token for all endpoints.",
+      "item": [
+        {
+          "name": "Describe Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Workspace-Id",
+                "value": "{{workspace_id}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Required for global-scope tokens. Sets the target workspace. Ignored for workspace-scoped tokens."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": \"{{profile_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/profiles/describe",
+              "host": ["{{host}}"],
+              "path": ["profiles", "describe"]
+            },
+            "description": "### Describe Profile\n\nRetrieves a profile by `id` or `email` within the caller's workspace. Exactly one of `id` or `email` is required; when both are supplied, `id` takes precedence.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | No* | Profile ID (either id or email required) |\n| email | string | No* | Workspace-facing profile email (either id or email required) |\n\n#### Response\n\nReturns the full `Profile` object with workspace-facing persona data and `email`; account-level identity is never exposed."
+          },
+          "response": []
+        },
+        {
+          "name": "List Profiles",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Workspace-Id",
+                "value": "{{workspace_id}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Required for global-scope tokens. Sets the target workspace. Ignored for workspace-scoped tokens."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"filter\": null,\n    \"options\": {\n        \"limit\": 50,\n        \"offset\": 0\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/profiles/list",
+              "host": ["{{host}}"],
+              "path": ["profiles", "list"]
+            },
+            "description": "### List Profiles\n\nLists profiles within a workspace with optional filtering and pagination. The filter supports `email` for case-insensitive matching.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| filter | object | No | Profile filters (null for no filter) |\n| options | object | No | Pagination with `limit` and `offset` |\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"profiles\": [...],\n    \"metadata\": { \"count\": 1, \"limit\": 50, \"offset\": 0 }\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Workspace-Id",
+                "value": "{{workspace_id}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Required for global-scope tokens. Sets the target workspace. Ignored for workspace-scoped tokens."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": \"{{profile_id}}\",\n    \"email\": \"ada@workspace.example.com\",\n    \"name\": \"Ada Lovelace\",\n    \"description\": \"Analytical engine lead\",\n    \"display_name\": \"Ada\",\n    \"job_title\": \"Principal\",\n    \"timezone\": \"Europe/London\",\n    \"avatar_url\": null,\n    \"tags\": [],\n    \"meta\": {\n        \"schema_version\": \"1.0\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/profiles/update",
+              "host": ["{{host}}"],
+              "path": ["profiles", "update"]
+            },
+            "description": "### Update Profile\n\nUpdates profile fields. All fields except `id` are optional (patch semantics); `name` must be non-empty when supplied. `email` must remain unique within the workspace (case-insensitive).\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | Profile ID |\n| email | string | No | Workspace-facing contact email |\n| name | string | No | Persona name (non-empty when supplied) |\n| description | string | No | Optional description |\n| display_name | string | No | Display name |\n| job_title | string | No | Job title |\n| timezone | string | No | IANA timezone |\n| avatar_url | string | No | Avatar image URL |\n| tags | string[] | No | Replacement tags |\n| meta | object | No | New metadata |\n\n#### Response\n\nReturns the updated `Profile` object."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Workspace-Id",
+                "value": "{{workspace_id}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Required for global-scope tokens. Sets the target workspace. Ignored for workspace-scoped tokens."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": \"{{profile_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/profiles/delete",
+              "host": ["{{host}}"],
+              "path": ["profiles", "delete"]
+            },
+            "description": "### Delete Profile\n\nDeletes a profile by ID. Deletion is blocked while the profile is still referenced by memberships.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | Profile ID |\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"id\": \"uuid...\"\n  }\n}\n```"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Policies",
+      "description": "AWS-IAM-style authorization policies. Each rule declares an `effect` (allow/deny), a `principal`, a set of `actions`, a `resource`, and an optional `constraint`. Policies are attached to roles and memberships and constrain what those grants may actually do. Policy CRUD is workspace-admin only.\n\n**Auth required:** Bearer token for all endpoints.",
+      "item": [
+        {
+          "name": "Describe Policy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Workspace-Id",
+                "value": "{{workspace_id}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Required for global-scope tokens. Sets the target workspace. Ignored for workspace-scoped tokens."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": \"{{policy_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/policies/describe",
+              "host": ["{{host}}"],
+              "path": ["policies", "describe"]
+            },
+            "description": "### Describe Policy\n\nRetrieves a policy by ID within the caller's workspace.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | Policy ID |\n\n#### Response\n\nReturns the full `Policy` object."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Policy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Workspace-Id",
+                "value": "{{workspace_id}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Required for global-scope tokens. Sets the target workspace. Ignored for workspace-scoped tokens."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"self-update\",\n    \"effect\": \"allow\",\n    \"principal_id\": null,\n    \"actions\": [\n        \"profile:update\",\n        \"membership:update\"\n    ],\n    \"resource\": \"self\",\n    \"constraint\": \"profile.account.id === user.id\",\n    \"description\": \"Members may update their own profile/membership\",\n    \"tags\": [],\n    \"meta\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/policies/create",
+              "host": ["{{host}}"],
+              "path": ["policies", "create"]
+            },
+            "description": "### Create Policy\n\nCreates a policy within the caller's workspace. Policy creation is workspace-admin only.\n\n#### Request Body\n\nThe request body is the full policy document. Only `effect`, `actions`, and `resource` are required.\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| name | string | No | Unique per workspace when present |\n| effect | string | Yes | \"allow\" or \"deny\" |\n| principal_id | uuid | No | Defaults to the attachment target |\n| actions | string[] | Yes | \"resource:action\" pairs; \"*\" allowed |\n| resource | string | Yes | \"self\", \"<uuid>\", or \"*\" |\n| constraint | string | No | Constraint DSL expression |\n| description | string | No | Free-form description |\n| tags | string[] | No | Categorization tags |\n| meta | object | No | Extensible metadata |\n\n#### Response\n\nReturns the created `Policy` object."
+          },
+          "response": []
+        },
+        {
+          "name": "List Policies",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Workspace-Id",
+                "value": "{{workspace_id}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Required for global-scope tokens. Sets the target workspace. Ignored for workspace-scoped tokens."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"filter\": null,\n    \"options\": {\n        \"limit\": 50,\n        \"offset\": 0\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/policies/list",
+              "host": ["{{host}}"],
+              "path": ["policies", "list"]
+            },
+            "description": "### List Policies\n\nLists policies within a workspace.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| filter | object | No | Policy filters (null for no filter) |\n| options | object | No | Pagination with `limit` and `offset` |\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"policies\": [...],\n    \"metadata\": { \"count\": 1, \"limit\": 50, \"offset\": 0 }\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Policy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Workspace-Id",
+                "value": "{{workspace_id}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Required for global-scope tokens. Sets the target workspace. Ignored for workspace-scoped tokens."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": \"{{policy_id}}\",\n    \"effect\": \"deny\",\n    \"actions\": [\n        \"profile:update\"\n    ],\n    \"constraint\": \"profile.account.id !== user.id\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/policies/update",
+              "host": ["{{host}}"],
+              "path": ["policies", "update"]
+            },
+            "description": "### Update Policy\n\nUpdates policy fields. All fields except `id` are optional (patch semantics). Policy updates are workspace-admin only.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | Policy ID |\n| effect | string | No | \"allow\" or \"deny\" |\n| actions | string[] | No | Replacement actions |\n| constraint | string | No | Replacement constraint |\n\n#### Response\n\nReturns the updated `Policy` object."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Policy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Workspace-Id",
+                "value": "{{workspace_id}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Required for global-scope tokens. Sets the target workspace. Ignored for workspace-scoped tokens."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": \"{{policy_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/policies/delete",
+              "host": ["{{host}}"],
+              "path": ["policies", "delete"]
+            },
+            "description": "### Delete Policy\n\nDeletes a policy by ID. Policy deletion is workspace-admin only.\n\n#### Request Body\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| id | uuid | Yes | Policy ID |\n\n#### Response\n\n``` json\n{\n  \"success\": true,\n  \"status\": 200,\n  \"data\": {\n    \"id\": \"uuid...\"\n  }\n}\n```"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Memberships",
       "description": "Membership management linking accounts to workspaces or projects with assigned roles.\n\n**Auth required:** Bearer token for all endpoints.",
       "item": [
@@ -1790,7 +2207,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"account_id\": \"{{account_id}}\",\n    \"scope\": \"workspace\",\n    \"status\": \"active\",\n    \"role_ids\": [\n        \"{{role_id}}\"\n    ],\n    \"tags\": [\"member\"],\n    \"meta\": {\n        \"schema_version\": \"1.0\"\n    }\n}",
+              "raw": "{\n    \"email\": \"member@example.com\",\n    \"account_id\": \"{{account_id}}\",\n    \"scope\": \"workspace\",\n    \"status\": \"active\",\n    \"role_ids\": [\n        \"{{role_id}}\"\n    ],\n    \"policy_ids\": [\n        \"{{policy_id}}\"\n    ],\n    \"tags\": [\"member\"],\n    \"meta\": {\n        \"schema_version\": \"1.0\"\n    }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1925,7 +2342,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"id\": \"{{membership_id}}\",\n    \"status\": \"suspended\",\n    \"tags\": [\"member\", \"suspended\"]\n}",
+              "raw": "{\n    \"id\": \"{{membership_id}}\",\n    \"status\": \"suspended\",\n    \"policy_ids\": [\n        \"{{policy_id}}\"\n    ],\n    \"tags\": [\"member\", \"suspended\"]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2247,6 +2664,16 @@
     },
     {
       "key": "membership_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "profile_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "policy_id",
       "value": "",
       "type": "string"
     },

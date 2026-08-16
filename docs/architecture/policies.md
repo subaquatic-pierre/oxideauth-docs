@@ -1,78 +1,83 @@
-# Roles, Permissions, and Policies — Keeping It Simple
+# Policy Engine
 
-## Roles and Permissions as the Foundation
+Policies are **first-class, workspace-scoped authorization rules** in the AWS-IAM style: each rule declares an `effect` (`allow` or `deny`), a `principal`, a set of `actions`, a `resource`, and an optional `constraint`. Policies are attached to [roles](roles.md) and [memberships](membership.md) and *grant* as well as *restrict* access: an `allow` policy grants actions, while a `deny` policy overrides any grant.
 
-- **Role = named bundle of permissions**  
-  Example: `Editor` → `["task:create", "task:update"]`
-- **Membership = account + role assignment**  
-  Applied at the workspace or project level.
-- This forms the baseline RBAC everyone understands.
+Policy CRUD is **workspace-admin only**. See the [Policy API reference](../api/policies.md) for the full request/response shapes.
 
-## Policy as a Filter/Overlay
+## Policy Document
 
-- Policies do **not** grant new actions.
-- They only **constrain or refine** what is already allowed by RBAC.
-- Conceptually:
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string? | no | Unique per workspace when present |
+| `effect` | string | yes | `"allow"` or `"deny"` |
+| `principal_id` | UUID? | no | Principal the rule applies to; defaults to the attachment target |
+| `actions` | string[] | yes | Non-empty; `"resource:action"` pairs; `"*"` allowed |
+| `resource` | string | yes | `"self"`, `"<uuid>"`, or `"*"` |
+| `constraint` | string? | no | Constraint DSL expression (see below) |
 
-Allowed? = (Role grants permission) AND (Policy doesn’t block it)
+```jsonc
+{
+  "effect": "allow",                             // string (required) - "allow" | "deny"
+  "actions": ["profile:update"],                 // string[] (required) - "resource:action"; "*" allowed
+  "resource": "self",                            // string (required) - "self" | "<uuid>" | "*"
+  "constraint": "profile.account.id === user.id" // string? (optional) - Constraint DSL expression
+}
+```
 
-- A user never _gains_ something from a policy, only loses it (or occasionally gets a scoped exception).
+## Evaluation Semantics
 
-## Explicit Scope
+- **Deny overrides allow**: an explicit `deny` for an action always wins, even when an `allow` also matches.
+- **Default deny**: anything not explicitly allowed is denied.
 
-- **Workspace policies** apply to all projects in the workspace.
-- **Project policies** apply only to that project.
-- **Membership policies** apply only to a single member.
+```text
+deny policy matches  → deny
+allow policy matches → allow
+nothing matches      → deny (default)
+```
 
-## Keep the Policy Language Simple
+## Attachment Model
 
-- Avoid a heavy DSL like AWS IAM.
-- Start with simple JSON or key-value conditions.
-- Examples:
-- `owner_only: true`
-- `time_window: "09:00–18:00"`
-- `status != archived`
+Policies attach to **roles** (bulk) and **memberships** (per-member) via `policy_ids`:
 
-## Summary
+- Role create/update DTOs accept `policy_ids`; role describe responses resolve them into `policies: Policy[]`.
+- Membership create/update DTOs accept `policy_ids`; membership describe responses resolve them into `policies: Policy[]`.
+- `policy_ids` on update replaces links (set semantics).
 
-- **Roles & permissions = structural access.**
-- **Policies = contextual constraints.**
-- This avoids the AWS-style complexity where policies feel like a second, parallel permission system.
+A user's effective policy set is the **deduplicated union** of the policies attached to all of their roles and all of their memberships.
 
-So the mental model becomes:
+## Workspace Scoping
 
-RBAC (Role + Permissions) = the ceiling of what a member could do.
+Policies are **workspace-scoped**: each policy belongs to exactly one workspace and is resolved from the authenticated token. **Project-scoped policies are not yet supported.**
 
-Policy (scoped constraints) = limitations that bring that ceiling down in certain contexts.
+## Constraint DSL
 
-That way, you always know:
+Constraints refine a policy at evaluation time. The grammar:
 
-If RBAC says “no” → it’s no (policy can’t give more).
+```text
+constraint       := attribute_path comparator operand
+comparator       := "===" | "!=="
+operand          := attribute_path | literal
+attribute_path   := ident ("." ident)*
+```
 
-If RBAC says “yes” → check policies → it may still become no under certain conditions.
+- The **left** attribute path resolves against the **target resource**.
+- The **right** operand resolves against the **request context**.
+- `user.id` is a reserved path equal to the authenticated account id.
 
-### AWS Policy Pitfall
+**Worked example** — `profile.account.id === user.id`: permits the action only when the target resource's `account.id` equals the requesting user's id.
 
-Nice and clean, no AWS-style “roles vs policies vs attached policies” spaghetti.
+## O(1) Runtime Lookup
 
-## Example
+Policies are compiled to a runtime key for O(1) lookup:
 
-### Without Policy (RBAC only)
+```text
+effect | sort(actions).join(",") | resource | (constraint ?? "")
+```
 
-- Role: **Editor**
-- Permissions: `["task:create", "task:update"]`
+Identical runtime keys are rejected at create time (`409 Duplicate runtime key`), so each key maps to a single policy within a workspace.
 
-➡️ Result:  
-Any user with the **Editor** role can create or update **any** task in the project.
+## Default Self-Mutation Policies
 
-### With Policy (Scoped Constraint)
+New workspaces ship with default `allow` policies for self-service mutations, for example:
 
-- Role: **Editor**
-- Permissions: `["task:create", "task:update"]`
-- Policy (project scope):
-- Target: `task:update`
-- Condition: `resource.owner_id == subject.id`
-- Effect: `allow`
-
-➡️ Result:  
-Editors can still create tasks, but they can **only update tasks they personally created**.
+- `profile:update` on `self` with constraint `profile.account.id === user.id` — members may update their own profile.

@@ -1,6 +1,6 @@
 # Role API
 
-Roles bundle [permissions](permissions.md) together and are assigned to accounts through [memberships](memberships.md).
+Roles bundle [permissions](permissions.md) and [policies](policies.md) together and are assigned to accounts through [memberships](memberships.md).
 
 **All endpoints require** `Authorization: Bearer <token>`.
 
@@ -10,7 +10,7 @@ Roles bundle [permissions](permissions.md) together and are assigned to accounts
 
 `POST /roles/create`
 
-Creates a new role with associated permissions. The name must be unique within the workspace.
+Creates a new role with associated permissions and policies. The name must be unique within the workspace.
 
 ### Request Body
 
@@ -19,6 +19,7 @@ Creates a new role with associated permissions. The name must be unique within t
   "name": "Admin",                                             // string (required) - Role name (unique per workspace)
   "description": "Full administrative access",                 // string (optional) - Optional description
   "permission_ids": ["660e8400-e29b-41d4-a716-446655440001"],  // UUID[] (required) - Permissions to attach
+  "policy_ids": ["cc0e8400-e29b-41d4-a716-446655440006"],      // UUID[] (required) - Policies to attach
   "tags": ["admin"],                                           // string[] (required) - Categorization tags
   "meta": { "schema_version": "1.0" }                          // object (required) - Metadata (schema_version required)
 }
@@ -26,7 +27,7 @@ Creates a new role with associated permissions. The name must be unique within t
 
 ### Response
 
-Returns the created `Role` object with nested permissions:
+Returns the created `Role` object with nested permissions and policies:
 
 ```json
 {
@@ -35,6 +36,9 @@ Returns the created `Role` object with nested permissions:
   "description": "Full administrative access",        // string? - Description
   "permissions": [                                    // Permission[] - Attached permission objects
     { "id": "660e8400-e29b-41d4-a716-446655440001" }  // object - A single permission object
+  ],
+  "policies": [                                       // Policy[] - Attached policy objects
+    { "id": "cc0e8400-e29b-41d4-a716-446655440006" }  // object - A single policy object
   ],
   "tags": ["admin"],                                  // string[] - Categorization tags
   "meta": { "schema_version": "1.0" },                // object - Metadata
@@ -61,7 +65,7 @@ Retrieves a role by ID.
 
 ### Response
 
-Full `Role` object with nested permissions:
+Full `Role` object with nested permissions and policies:
 
 ```json
 {
@@ -70,6 +74,9 @@ Full `Role` object with nested permissions:
   "description": "Full administrative access",        // string? - Description
   "permissions": [                                    // Permission[] - Attached permission objects
     { "id": "660e8400-e29b-41d4-a716-446655440001" }  // object - A single permission object
+  ],
+  "policies": [                                       // Policy[] - Attached policy objects
+    { "id": "cc0e8400-e29b-41d4-a716-446655440006" }  // object - A single policy object
   ],
   "tags": ["admin"],                                  // string[] - Categorization tags
   "meta": { "schema_version": "1.0" },                // object - Metadata
@@ -141,6 +148,7 @@ Updates role fields. All fields except `id` are optional.
   "name": "Super Admin",                                       // string (optional) - New name
   "description": "Elevated administrative access",             // string (optional) - New description
   "permission_ids": ["660e8400-e29b-41d4-a716-446655440001"],  // UUID[] (optional) - Replaces all attached permissions
+  "policy_ids": ["cc0e8400-e29b-41d4-a716-446655440006"],      // UUID[] (optional) - Replaces all attached policies
   "tags": ["admin"],                                           // string[] (optional) - Replacement tags
   "meta": { "schema_version": "1.0" }                          // object (optional) - New metadata
 }
@@ -148,6 +156,9 @@ Updates role fields. All fields except `id` are optional.
 
 !!! warning "Permission Replacement"
     Providing `permission_ids` will **replace** all existing permissions on the role, not append to them.
+
+!!! warning "Policy Replacement"
+    Providing `policy_ids` will **replace** all existing policies on the role, not append to them.
 
 ### Response
 
@@ -160,6 +171,9 @@ Updated `Role` object:
   "description": "Full administrative access",        // string? - Description
   "permissions": [                                    // Permission[] - Attached permission objects
     { "id": "660e8400-e29b-41d4-a716-446655440001" }  // object - A single permission object
+  ],
+  "policies": [                                       // Policy[] - Attached policy objects
+    { "id": "cc0e8400-e29b-41d4-a716-446655440006" }  // object - A single policy object
   ],
   "tags": ["admin"],                                  // string[] - Categorization tags
   "meta": { "schema_version": "1.0" },                // object - Metadata

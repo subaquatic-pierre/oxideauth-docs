@@ -91,9 +91,12 @@ nav:
       - Memberships: api/memberships.md
       - Credentials: api/credentials.md
       - Validate: api/validate.md
+      - Profiles: api/profiles.md
+      - Policies: api/policies.md
   - Concepts:
       - Multi-Tenancy & Workspaces: concepts/workspaces.md
       - RBAC & Permissions: concepts/permissions.md
+      - Identity Model: concepts/identity-model.md
       - Memberships: concepts/membership.md
   - Architecture:
       - Overview: architecture/overview.md
@@ -118,11 +121,12 @@ nav:
       - Schema Improvements: architecture/schema_improvements.md
       - Permission Clarity: architecture/authentication.md
       - Clients Entity: architecture/clients.md
+      - Client Validation: architecture/client-validation.md
       - Push Model: architecture/push-model.md
 
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/oxideauth/oxideauth
+      link: https://github.com/subaquatic-pierre/oxideauth
 
 copyright: Copyright &copy; 2026 OxideAuth

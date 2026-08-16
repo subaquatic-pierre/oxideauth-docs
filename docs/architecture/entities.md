@@ -33,7 +33,26 @@
 
 - A **Membership** connects an **Account** to a **Workspace**, and optionally to a **Project** inside it.
 - Think: “User X is a member of Workspace Y (and maybe Project Z).”
-- Each membership can be assigned one or more **Roles**.
+- Each membership references a **Profile** (the workspace persona of the account) via `profile_id`.
+- Each membership can be assigned one or more **Roles** and directly attached **Policies**.
+
+---
+
+### Profiles
+
+- A **Profile** is the workspace-scoped persona of an **Account** — what a workspace sees and edits.
+- Each **Account** has exactly one **Profile** per **Workspace**.
+- A profile carries workspace-facing fields: `email`, `name`, `display_name`, `job_title`, `timezone`, and `avatar_url`.
+- The profile `email` is unique per workspace (case-insensitive).
+- A **Membership** references a **Profile**; workspace-facing surfaces expose the profile's own `email` but never the account-level `account_id`.
+
+---
+
+### Policies
+
+- A **Policy** is a workspace-scoped authorization rule with an effect (`allow` or `deny`), actions, a resource, and an optional constraint.
+- Policies attach to **Roles** (bulk assignment) and **Memberships** (per-member exceptions) through **Role_Policy** and **Membership_Policy** link tables.
+- Effective policies are the deduplicated union of role-attached and membership-attached policies; an explicit deny overrides any allow.
 
 ---
 
@@ -74,6 +93,10 @@
 - **Membership** = the link that says “this account is part of this workspace/project.”
 - **Role** = a job title inside the workspace (Admin, Editor, Viewer).
 - **Permission** = the atomic actions (read, write, delete).
+- **Profile** = the workspace persona of an account (one per account per workspace).
+- **Policy** = a workspace-scoped allow/deny authorization rule.
 - **Membership_Role** = assigns roles to a membership.
 - **Role_Permission** = assigns permissions to a role.
+- **Role_Policy** = assigns policies to a role.
+- **Membership_Policy** = assigns policies to a membership.
 - **Credential** = how the account logs in, scoped to a workspace.
